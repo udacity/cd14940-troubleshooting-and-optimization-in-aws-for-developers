@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'ShopFast Notification Handler - MVP Solution'
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    MemorySize: 256
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  OrderEventsTopic:
+    Type: String
+    Description: SNS Topic ARN for order events
+
+Resources:
+  NotificationHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'shopfast-notification-handler-${Environment}'
+      Handler: handler.lambda_handler
+      CodeUri: ./
+      Description: 'Notification handler - MVP Solution'
+
+      # MVP: X-Ray tracing enabled
+      Tracing: Active
+
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+
+      Policies:
+        - SESCrudPolicy:
+            IdentityName: '*'
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - xray:PutTraceSegments
+                - xray:PutTelemetryRecords
+              Resource: '*'
+
+      Events:
+        SNSEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref OrderEventsTopic
+
+  NotificationHandlerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/shopfast-notification-handler-${Environment}'
+      RetentionInDays: 7
+
+Outputs:
+  NotificationHandlerArn:
+    Description: Notification Handler Lambda ARN
+    Value: !GetAtt NotificationHandlerFunction.Arn

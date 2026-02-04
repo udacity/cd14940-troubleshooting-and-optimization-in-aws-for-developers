@@ -1,0 +1,322 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ShopFast Step Functions - Product Catalog Refresh Workflow (Serverless-Only)
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  NotificationsTopicArn:
+    Type: String
+    Description: ARN of the Notifications SNS Topic from messaging stack
+
+Resources:
+  # Step Functions Execution Role
+  StepFunctionsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub shopfast-stepfunctions-role-${Environment}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StepFunctionsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:shopfast-*
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/shopfast-*
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource:
+                  - !ImportValue
+                    Fn::Sub: shopfast-messaging-NotificationsTopic
+              - Effect: Allow
+                Action:
+                  - events:PutEvents
+                Resource:
+                  - !ImportValue
+                    Fn::Sub: shopfast-messaging-EventBusArn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogDelivery
+                  - logs:GetLogDelivery
+                  - logs:UpdateLogDelivery
+                  - logs:DeleteLogDelivery
+                  - logs:ListLogDeliveries
+                  - logs:PutResourcePolicy
+                  - logs:DescribeResourcePolicies
+                  - logs:DescribeLogGroups
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                  - xray:GetSamplingRules
+                  - xray:GetSamplingTargets
+                Resource: '*'
+
+  # CloudWatch Log Group for Step Functions
+  StepFunctionsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/stepfunctions/shopfast-product-workflow-${Environment}
+      RetentionInDays: 7
+
+  # Product Catalog Refresh State Machine
+  # PLANTED ISSUE: Wait state has incorrect timeout configuration
+  ProductWorkflowStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub shopfast-product-workflow-${Environment}
+      RoleArn: !GetAtt StepFunctionsExecutionRole.Arn
+      StateMachineType: STANDARD
+      TracingConfiguration:
+        Enabled: false  # X-Ray disabled by default (enable for tracing exercise)
+      LoggingConfiguration:
+        Level: ERROR
+        IncludeExecutionData: false
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt StepFunctionsLogGroup.Arn
+      DefinitionString: !Sub |
+        {
+          "Comment": "ShopFast Product Catalog Refresh Workflow",
+          "StartAt": "ValidateCatalogRequest",
+          "States": {
+            "ValidateCatalogRequest": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:shopfast-validate-catalog-${Environment}",
+              "ResultPath": "$.validation",
+              "Next": "CheckValidation",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "RefreshFailed"
+                }
+              ]
+            },
+            "CheckValidation": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.validation.isValid",
+                  "BooleanEquals": true,
+                  "Next": "FetchProductUpdates"
+                }
+              ],
+              "Default": "RefreshFailed"
+            },
+            "FetchProductUpdates": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:shopfast-fetch-products-${Environment}",
+              "ResultPath": "$.products",
+              "Next": "ProcessProductsResult",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "RefreshFailed"
+                }
+              ]
+            },
+            "ProcessProductsResult": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.products.hasUpdates",
+                  "BooleanEquals": true,
+                  "Next": "UpdateCatalog"
+                }
+              ],
+              "Default": "WaitForUpdates"
+            },
+            "WaitForUpdates": {
+              "Type": "Wait",
+              "Comment": "PLANTED ISSUE: Timestamp in far future causes workflow to hang indefinitely. Fix: Use 'Seconds': 30 instead",
+              "Timestamp": "2099-01-01T00:00:00Z",
+              "Next": "RetryFetchProducts"
+            },
+            "RetryFetchProducts": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:shopfast-fetch-products-${Environment}",
+              "ResultPath": "$.products",
+              "TimeoutSeconds": 5,
+              "Next": "FinalProductCheck",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "RefreshFailed"
+                }
+              ]
+            },
+            "FinalProductCheck": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.products.hasUpdates",
+                  "BooleanEquals": true,
+                  "Next": "UpdateCatalog"
+                }
+              ],
+              "Default": "RefreshComplete"
+            },
+            "UpdateCatalog": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:shopfast-update-catalog-${Environment}",
+              "ResultPath": "$.update",
+              "Next": "SendNotification",
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "ResultPath": "$.error",
+                  "Next": "RefreshFailed"
+                }
+              ]
+            },
+            "SendNotification": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::sns:publish",
+              "Parameters": {
+                "TopicArn": "${NotificationsTopicArn}",
+                "Message.$": "States.Format('Product catalog has been refreshed with {} updates', $.update.count)",
+                "MessageAttributes": {
+                  "eventType": {
+                    "DataType": "String",
+                    "StringValue": "CATALOG_REFRESHED"
+                  }
+                }
+              },
+              "Next": "RefreshComplete"
+            },
+            "RefreshComplete": {
+              "Type": "Succeed"
+            },
+            "RefreshFailed": {
+              "Type": "Fail",
+              "Error": "CatalogRefreshFailed",
+              "Cause": "Product catalog could not be refreshed"
+            }
+          }
+        }
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Helper Lambda for Catalog Validation
+  ValidateCatalogFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub shopfast-validate-catalog-${Environment}
+      Runtime: python3.11
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              # Placeholder validation logic
+              return {
+                  "isValid": True,
+                  "requestId": event.get("requestId", "req-12345")
+              }
+
+  FetchProductsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub shopfast-fetch-products-${Environment}
+      Runtime: python3.11
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              # Placeholder product fetch
+              return {
+                  "hasUpdates": True,
+                  "productCount": 10
+              }
+
+  UpdateCatalogFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub shopfast-update-catalog-${Environment}
+      Runtime: python3.11
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              # Placeholder catalog update
+              return {
+                  "updated": True,
+                  "count": event.get("products", {}).get("productCount", 0)
+              }
+
+  # Lambda Execution Role for Step Functions helpers
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub shopfast-stepfunctions-lambda-role-${Environment}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/shopfast-*
+
+Outputs:
+  StateMachineArn:
+    Description: Product Workflow State Machine ARN
+    Value: !Ref ProductWorkflowStateMachine
+    Export:
+      Name: !Sub ${AWS::StackName}-StateMachineArn
+
+  StateMachineName:
+    Description: Product Workflow State Machine Name
+    Value: !GetAtt ProductWorkflowStateMachine.Name
+    Export:
+      Name: !Sub ${AWS::StackName}-StateMachineName
+
+  ExecutionRoleArn:
+    Description: Step Functions Execution Role ARN
+    Value: !GetAtt StepFunctionsExecutionRole.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-ExecutionRole

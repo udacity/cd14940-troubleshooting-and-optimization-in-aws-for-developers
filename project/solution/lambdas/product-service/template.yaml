@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'ShopFast Product Service - MVP Solution'
+
+# MVP Solution includes:
+# - Timeout fix (30s instead of 3s)
+# - X-Ray tracing enabled
+# - Basic structured logging
+# - EMF metrics
+
+Globals:
+  Function:
+    Timeout: 30  # MVP FIX: Increased from 3s
+    Runtime: python3.11
+    MemorySize: 512  # MVP: Right-sized based on analysis
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  ProductsTableName:
+    Type: String
+    Default: shopfast-products-dev
+
+Resources:
+  ProductServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'shopfast-product-service-${Environment}'
+      Handler: handler.lambda_handler
+      CodeUri: ./
+      Description: 'Product catalog service - MVP Solution'
+
+      # MVP: X-Ray tracing enabled
+      Tracing: Active
+
+      Environment:
+        Variables:
+          PRODUCTS_TABLE: !Ref ProductsTableName
+          ENVIRONMENT: !Ref Environment
+          # Note: REDIS_HOST not set in MVP (caching is Stretch Goal)
+
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTableName
+        # MVP: X-Ray permissions
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - xray:PutTraceSegments
+                - xray:PutTelemetryRecords
+              Resource: '*'
+
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowMethods:
+            - GET
+          AllowHeaders:
+            - Content-Type
+            - X-Correlation-ID
+          AllowOrigins:
+            - "*"
+
+  # MVP: CloudWatch Log Group with retention
+  ProductServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/shopfast-product-service-${Environment}'
+      RetentionInDays: 7
+
+Outputs:
+  ProductServiceArn:
+    Description: Product Service Lambda ARN
+    Value: !GetAtt ProductServiceFunction.Arn
+

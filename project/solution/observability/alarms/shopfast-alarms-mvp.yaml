@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ShopFast MVP CloudWatch Alarms - 3 critical alarms'
+
+# MVP: 3 alarms covering key failure scenarios
+# Stretch Goals would add: Composite alarms, container probes, SLI/SLO
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  AlertSNSTopic:
+    Type: String
+    Description: SNS Topic ARN for alarm notifications
+
+Resources:
+  # MVP Alarm 1: Lambda Error Rate
+  ProductServiceErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'ShopFast-${Environment}-ProductService-Errors'
+      AlarmDescription: 'Product service Lambda error rate exceeds threshold'
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub 'shopfast-product-service-${Environment}'
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+      OKActions:
+        - !Ref AlertSNSTopic
+      TreatMissingData: notBreaching
+
+  # MVP Alarm 2: Lambda Duration (approaching timeout)
+  ProductServiceDurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'ShopFast-${Environment}-ProductService-Duration'
+      AlarmDescription: 'Product service Lambda duration exceeds threshold (timeout warning)'
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub 'shopfast-product-service-${Environment}'
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 3
+      Threshold: 2500
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+      OKActions:
+        - !Ref AlertSNSTopic
+      TreatMissingData: notBreaching
+
+  # MVP Alarm 3: DynamoDB Throttling
+  DynamoDBThrottlingAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'ShopFast-${Environment}-DynamoDB-Throttling'
+      AlarmDescription: 'DynamoDB throttling detected - requests being rejected'
+      MetricName: ThrottledRequests
+      Namespace: AWS/DynamoDB
+      Dimensions:
+        - Name: TableName
+          Value: shopfast-products
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertSNSTopic
+      OKActions:
+        - !Ref AlertSNSTopic
+      TreatMissingData: notBreaching
+
+Outputs:
+  ProductServiceErrorAlarmArn:
+    Description: Product Service Error Alarm ARN
+    Value: !GetAtt ProductServiceErrorAlarm.Arn
+
+  ProductServiceDurationAlarmArn:
+    Description: Product Service Duration Alarm ARN
+    Value: !GetAtt ProductServiceDurationAlarm.Arn
+
+  DynamoDBThrottlingAlarmArn:
+    Description: DynamoDB Throttling Alarm ARN
+    Value: !GetAtt DynamoDBThrottlingAlarm.Arn

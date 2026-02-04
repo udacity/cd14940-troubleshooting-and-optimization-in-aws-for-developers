@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ShopFast Product Service Lambda (Serverless-Only)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    # PLANTED ISSUE #1: Memory is too low (128MB) causing slow cold starts (6-8 seconds)
+    # Discovery: X-Ray traces show long initialization, Lambda Insights shows high cold start duration
+    # Fix: Increase to 512MB or higher - memory affects CPU allocation proportionally
+    MemorySize: 128
+    # PLANTED ISSUE #2: Timeout is too short (3s) for DynamoDB scan operations
+    # which can take 4-5 seconds on cold start + large table scan
+    # Discovery: CloudWatch Logs show "Task timed out after 3.00 seconds"
+    # Fix: Increase to 30 seconds
+    Timeout: 3
+    Environment:
+      Variables:
+        PRODUCTS_TABLE: shopfast-products-dev
+        ENVIRONMENT: dev
+        # PLANTED ISSUE #3: Log level set to DEBUG causes excessive logging costs
+        # Discovery: CloudWatch Logs showing high volume of debug output
+        # Fix: Change to INFO or WARN for production
+        LOG_LEVEL: DEBUG
+
+Resources:
+  ProductServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: shopfast-product-service-dev
+      CodeUri: .
+      Handler: handler.lambda_handler
+      Description: Product catalog service for ShopFast
+      # PLANTED ISSUE #4: X-Ray tracing disabled - no distributed tracing visibility
+      # Discovery: No X-Ray traces appear for Lambda function
+      # Fix: Add Tracing: Active
+      Tracing: PassThrough
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: shopfast-products-dev
+
+  # CloudWatch Log Group with planted issue
+  ProductServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/shopfast-product-service-dev
+      # PLANTED ISSUE #5: Retention too short (1 day) - logs disappear before debugging
+      # Discovery: Historical log queries return no results
+      # Fix: Set to 7-14 days for dev environments
+      RetentionInDays: 1
+
+Outputs:
+  ProductServiceFunction:
+    Description: Product Service Lambda Function ARN
+    Value: !GetAtt ProductServiceFunction.Arn
+

@@ -1,0 +1,64 @@
+{
+  "Description": "ShopFast MVP Dashboard - Basic operational visibility",
+  "Comment": "MVP: 3 widgets covering request/error rates, latency, and one custom metric",
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Lambda Invocations & Errors (MVP)",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/Lambda", "Invocations", "FunctionName", "shopfast-product-service", {"stat": "Sum", "period": 60}],
+          [".", "Errors", ".", ".", {"stat": "Sum", "period": 60, "color": "#d62728"}]
+        ],
+        "region": "${AWS::Region}",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Lambda Duration (MVP)",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/Lambda", "Duration", "FunctionName", "shopfast-product-service", {"stat": "p50", "period": 60}],
+          ["...", {"stat": "p90", "period": 60}],
+          ["...", {"stat": "p99", "period": 60}]
+        ],
+        "region": "${AWS::Region}",
+        "yAxis": {
+          "left": {
+            "label": "Duration (ms)"
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Custom Business Metrics (MVP)",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["ShopFast/Application", "ProductViews", "Service", "product-service", {"stat": "Sum", "period": 60}],
+          [".", "NotificationsSent", ".", "notification-handler", {"stat": "Sum", "period": 60}]
+        ],
+        "region": "${AWS::Region}"
+      }
+    }
+  ]
+}
