@@ -35,39 +35,41 @@ As a **Senior DevOps Consultant**, the CTO has brought you in to save their plat
 │                          Lambda Function URLs                                │
 │                       (Direct HTTP API Endpoints)                            │
 └─────────────────────────────────────────────────────────────────────────────┘
-         │                        │                         │
-         ▼                        ▼                         ▼
-┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│  Lambda         │    │  ECS Fargate        │    │  EKS                │
-│  product-service│    │  order-service      │    │  inventory-service  │
-│  (Python 3.11)  │    │  (FastAPI/Python)   │    │  (FastAPI/Python)   │
-└────────┬────────┘    └──────────┬──────────┘    └──────────┬──────────┘
-         │                        │                          │
-         ▼                        ▼                          ▼
-┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│  DynamoDB       │    │  DynamoDB           │    │  RDS Aurora MySQL   │
-│  (Products)     │    │  (Orders)           │    │  (Inventory)        │
-└─────────────────┘    └─────────────────────┘    └─────────────────────┘
-                                │
-                                ▼
-                  ┌─────────────────────────┐
-                  │      EventBridge        │
-                  │   (Order Events Bus)    │
-                  └────────────┬────────────┘
-                               │
-          ┌────────────────────┼────────────────────┐
-          ▼                    ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐
-│  Step Functions │  │  SNS Topic      │  │  Lambda             │
-│  (Order         │  │  (Notifications)│  │  notification-      │
-│   Workflow)     │  │                 │  │  handler            │
-└─────────────────┘  └─────────────────┘  └─────────────────────┘
-                               │
-                               ▼
-                     ┌─────────────────┐
-                     │  SQS Queue      │
-                     │  (Dead Letter)  │
-                     └─────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────────┐
+                    │  Lambda: product-service        │
+                    │  (Python 3.11)                  │
+                    └────────────────┬────────────────┘
+                                     │
+              ┌──────────────────────┼──────────────────────┐
+              ▼                      ▼                      ▼
+┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
+│  DynamoDB           │  │  ElastiCache Redis  │  │  SNS Topic          │
+│  (Products Table)   │  │  (Caching Layer)    │  │  (Product Events)   │
+└─────────────────────┘  └─────────────────────┘  └──────────┬──────────┘
+                                                             │
+                         ┌───────────────────────────────────┤
+                         ▼                                   ▼
+           ┌─────────────────────────┐         ┌─────────────────────────┐
+           │  EventBridge            │         │  Lambda:                │
+           │  (shopfast-events)      │         │  notification-handler   │
+           └────────────┬────────────┘         └─────────────────────────┘
+                        │
+                        ▼
+           ┌─────────────────────────┐
+           │  Step Functions         │
+           │  (Product Workflow)     │
+           │  ├─ validate-catalog    │
+           │  ├─ fetch-products      │
+           │  └─ update-catalog      │
+           └────────────┬────────────┘
+                        │
+                        ▼
+           ┌─────────────────────────┐
+           │  SQS Queue              │
+           │  (+ Dead Letter Queue)  │
+           └─────────────────────────┘
 ```
 
 ### Service Summary
@@ -75,17 +77,16 @@ As a **Senior DevOps Consultant**, the CTO has brought you in to save their plat
 | Service | Platform | Runtime | Data Store |
 |---------|----------|---------|------------|
 | Frontend | CloudFront + S3 | React 18 | - |
-| Product Service | Lambda | Python 3.11 | DynamoDB |
-| Order Service | ECS Fargate | FastAPI/Python | DynamoDB |
-| Inventory Service | EKS | FastAPI/Python | RDS Aurora MySQL |
+| Product Service | Lambda (Function URL) | Python 3.11 | DynamoDB |
 | Notification Handler | Lambda | Python 3.11 | - |
+| Product Workflow | Step Functions | Lambda (inline) | - |
 
 ### Integration Layer
 
-- **EventBridge**: Order events bus (`shopfast-events`)
-- **SNS Topics**: Order events, inventory updates, customer notifications
-- **SQS Queues**: Order processing buffer, dead letter queues
-- **Step Functions**: Order workflow orchestration
+- **EventBridge**: Product events bus (`shopfast-events`)
+- **SNS Topics**: Product events, customer notifications
+- **SQS Queues**: Product processing queue, dead letter queue
+- **Step Functions**: Product catalog refresh workflow
 
 ---
 
@@ -108,15 +109,15 @@ As a **Senior DevOps Consultant**, the CTO has brought you in to save their plat
 5. Wait for the environment to initialize
 
 ### Open the Cloud9 IDE
-1.  Now that you have created the environment, you can access Cloud9 bfrom the Cloud9 service in the AWS Console.
+1.  Now that you have created the environment, you can access Cloud9 from the Cloud9 service in the AWS Console.
 2.  Select the environment you just created and click **Open in Cloud9**
-3.  You should now be in the Cloud9 IDE, here's is a quic overview of what Cloud9 is: 
+3.  You should now be in the Cloud9 IDE, here's is a quick overview of what Cloud9 is:
     -  The Cloud9 IDE is an AWS cloud-based integrated development environment (IDE) that lets you write, run, and debug code in your browser.
     - Think of it as VS Code but running in your AWS cloud environment.
     - You can use the Cloud9 IDE to write, run, and debug your code, and to interact with AWS services.
-    - We will be using the Cloud9 IDE to both bootstrap our environment and to complete the project. 
+    - We will be using the Cloud9 IDE to both bootstrap our environment and to complete the project.
 
-### Cloning the  Repository
+### Cloning the Repository
 1. Once the Cloud9 IDE is open, you can use the terminal at the bottom of the IDE to clone the repository.
 2. Click inside the bash terminal (lower right corner of the console) and paste the following commands:
   - `git clone https://github.com/udacity/cd14940-troubleshooting-and-optimization-in-aws-for-developers.git`
@@ -130,20 +131,17 @@ As a **Senior DevOps Consultant**, the CTO has brought you in to save their plat
 - This script will install:
   - AWS SAM CLI
   - Docker
-  - kubectl
-  - eksctl
   - uv (Python package manager)
   - Node.js 18+
 
-### Bootstrap Infrastructure**
+### Bootstrap Infrastructure
 - Run the following commands to bootstrap the environment:
   - `chmod +x bootstrap.sh`
   - `bash bootstrap.sh`
-- 
 
 The bootstrap process takes approximately 20-30 minutes and will:
 1. Create networking infrastructure (VPC, subnets, security groups)
-2. Deploy data stores (DynamoDB, RDS Aurora, ElastiCache)
+2. Deploy data stores (DynamoDB, ElastiCache)
 3. Set up messaging (SNS, SQS, EventBridge)
 4. Deploy compute resources (Lambda with Function URLs)
 5. Configure CloudFront
@@ -181,14 +179,14 @@ This project is organized into four parts:
 ### Part 1: Implement Observability
 
 - Implement structured JSON logging
-- Enable X-Ray tracing on Lambda and API Gateway
+- Enable X-Ray tracing on Lambda
 - Publish custom EMF metrics
 - Build operational CloudWatch dashboard
 
 ### Part 2: Diagnose and Fix Issues
 
 - Analyze logs with CloudWatch Insights
-- Debug Lambda and container service issues
+- Debug Lambda service issues
 - Document and verify fixes for at least 3 distinct issues
 
 ### Part 3: Optimize Performance
@@ -242,9 +240,7 @@ curl -I $CLOUDFRONT_URL
 
 | Service | Endpoint |
 |---------|----------|
-| Product Service | `GET /products/health` |
-| Order Service | `GET /orders/health` |
-| Inventory Service | `GET /inventory/health` |
+| Product Service | `GET /health` (via Lambda Function URL) |
 
 ---
 
@@ -266,9 +262,7 @@ cd bootstrap_scripts
 | Issue | Solution |
 |-------|----------|
 | Bootstrap fails | Check IAM permissions; ensure Cloud9 has Admin role |
-| EKS cluster not ready | Wait 15-20 minutes; run `eksctl get cluster` to verify |
 | Lambda timeout | Check VPC configuration and security groups |
-| Container not starting | Check CloudWatch Logs for ECS/EKS task logs |
 | DynamoDB throttling | Verify provisioned capacity or enable on-demand |
 | Redis connection failed | Verify security groups allow port 6379 |
 
@@ -285,10 +279,10 @@ cd bootstrap_scripts
 
 ### AWS Services
 
-- **Compute**: Lambda, ECS Fargate, EKS
-- **Storage**: S3, DynamoDB, RDS Aurora
+- **Compute**: Lambda (with Function URLs)
+- **Storage**: S3, DynamoDB
 - **Caching**: ElastiCache Redis
-- **Networking**: CloudFront, API Gateway, VPC
+- **Networking**: CloudFront, VPC
 - **Messaging**: SNS, SQS, EventBridge
 - **Orchestration**: Step Functions
 - **Observability**: CloudWatch, X-Ray
@@ -296,9 +290,8 @@ cd bootstrap_scripts
 ### Technologies
 
 - React 18 (Frontend)
-- FastAPI / Python 3.11 (Backend Services)
-- Docker / Kubernetes
-- Terraform / CloudFormation (Infrastructure)
+- Python 3.11 (Backend Services)
+- AWS SAM / CloudFormation (Infrastructure)
 
 ---
 
