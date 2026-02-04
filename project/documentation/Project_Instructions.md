@@ -122,10 +122,10 @@ Create a CloudWatch dashboard that provides visibility into:
 
 #### MVP Deliverables
 
-- [ ] Screenshot of structured JSON log output in CloudWatch Logs
-- [ ] Screenshot of X-Ray service map showing Lambda functions
-- [ ] Screenshot of custom metrics in CloudWatch Metrics console
-- [ ] Screenshot of operational dashboard
+- [ ] Screenshot of structured JSON log output in CloudWatch Logs → `Project_Pt_1_screenshot_1.png`
+- [ ] Screenshot of X-Ray service map showing Lambda functions → `Project_Pt_1_screenshot_2.png`
+- [ ] Screenshot of custom metrics in CloudWatch Metrics console → `Project_Pt_1_screenshot_3.png`
+- [ ] Screenshot of operational dashboard → `Project_Pt_1_screenshot_4.png`
 
 ---
 
@@ -163,9 +163,9 @@ Expand the dashboard to include:
 
 #### Stretch Goal Deliverables
 
-- [ ] Screenshot showing correlation ID propagation across services
-- [ ] Screenshot of X-Ray traces with annotations and metadata
-- [ ] Screenshot of enhanced dashboard with all widget types
+- [ ] Screenshot showing correlation ID propagation across services → `Project_Pt_1_screenshot_5.png`
+- [ ] Screenshot of X-Ray traces with annotations and metadata → `Project_Pt_1_screenshot_6.png`
+- [ ] Screenshot of enhanced dashboard with all widget types → `Project_Pt_1_screenshot_7.png`
 
 ---
 
@@ -224,10 +224,10 @@ Document and fix at least **3 distinct issues** across the platform.
 
 #### MVP Deliverables
 
-- [ ] CloudWatch Logs Insights queries showing identified issues (at least 2 queries)
-- [ ] X-Ray trace screenshots showing root cause analysis for at least 1 issue
+- [ ] CloudWatch Logs Insights queries showing identified issues (at least 2 queries) → `Project_Pt_2_screenshot_1.png`
+- [ ] X-Ray trace screenshots showing root cause analysis for at least 1 issue → `Project_Pt_2_screenshot_2.png`
 - [ ] Documentation of 3 issues found: symptoms, root cause, and fix applied
-- [ ] Evidence (logs, metrics, or traces) showing fixes resolved the issues
+- [ ] Evidence (logs, metrics, or traces) showing fixes resolved the issues → `Project_Pt_2_screenshot_3.png`, `Project_Pt_2_screenshot_4.png`
 
 ---
 
@@ -253,9 +253,9 @@ Investigate Lambda-specific issues:
 
 #### Stretch Goal Deliverables
 
-- [ ] DLQ message analysis showing failed message inspection
-- [ ] EventBridge rule pattern mismatch identification
-- [ ] Step Functions execution history showing all failed state identification
+- [ ] DLQ message analysis showing failed message inspection → `Project_Pt_2_screenshot_5.png`
+- [ ] EventBridge rule pattern mismatch identification → `Project_Pt_2_screenshot_6.png`
+- [ ] Step Functions execution history showing all failed state identification → `Project_Pt_2_screenshot_7.png`
 - [ ] Documentation showing log-to-trace correlation technique
 - [ ] Lambda cold start analysis with recommendations
 
@@ -301,9 +301,9 @@ Integrate ElastiCache with the product service:
 
 #### MVP Deliverables
 
-- [ ] X-Ray trace analysis identifying slowest operations
-- [ ] Lambda memory analysis with optimization recommendations and before/after metrics
-- [ ] Screenshot or logs showing ElastiCache integration working
+- [ ] X-Ray trace analysis identifying slowest operations → `Project_Pt_3_screenshot_1.png`
+- [ ] Lambda memory analysis with optimization recommendations and before/after metrics → `Project_Pt_3_screenshot_2.png`
+- [ ] Screenshot or logs showing ElastiCache integration working → `Project_Pt_3_screenshot_3.png`
 - [ ] Evidence of cache hit/miss (logs or metrics)
 
 ---
@@ -333,10 +333,10 @@ Add SNS filter policies to:
 
 #### Stretch Goal Deliverables
 
-- [ ] Database query performance analysis with throttling identification
-- [ ] CloudFront cache behavior configuration with appropriate TTLs for static content
-- [ ] Cache hit rate metrics showing improvement
-- [ ] SNS subscription filter policy configuration
+- [ ] Database query performance analysis with throttling identification → `Project_Pt_3_screenshot_4.png`
+- [ ] CloudFront cache behavior configuration with appropriate TTLs for static content → `Project_Pt_3_screenshot_5.png`
+- [ ] Cache hit rate metrics showing improvement → `Project_Pt_3_screenshot_6.png`
+- [ ] SNS subscription filter policy configuration → `Project_Pt_3_screenshot_7.png`
 
 ---
 
@@ -379,9 +379,9 @@ Configure SNS for alerting:
 
 #### MVP Deliverables
 
-- [ ] Health endpoint responses (AWS Lambda invoke output or screenshot)
-- [ ] Screenshot showing at least 3 CloudWatch alarms configured
-- [ ] SNS notification test confirmation (email received)
+- [ ] Health endpoint responses (AWS Lambda invoke output or screenshot) → `Project_Pt_4_screenshot_1.png`
+- [ ] Screenshot showing at least 3 CloudWatch alarms configured → `Project_Pt_4_screenshot_2.png`
+- [ ] SNS notification test confirmation (email received) → `Project_Pt_4_screenshot_3.png`
 
 ---
 
@@ -411,9 +411,9 @@ Analyze and document:
 
 #### Stretch Goal Deliverables
 
-- [ ] Composite alarm or tiered alerting configuration
-- [ ] EventBridge rule for operational events
-- [ ] SLI/SLO monitoring dashboard with defined targets
+- [ ] Composite alarm or tiered alerting configuration → `Project_Pt_4_screenshot_4.png`
+- [ ] EventBridge rule for operational events → `Project_Pt_4_screenshot_5.png`
+- [ ] SLI/SLO monitoring dashboard with defined targets → `Project_Pt_4_screenshot_6.png`
 
 ---
 
