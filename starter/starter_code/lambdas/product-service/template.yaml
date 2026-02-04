@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ShopFast Product Service Lambda (Serverless-Only)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    MemorySize: 128
+    Timeout: 3
+    Environment:
+      Variables:
+        PRODUCTS_TABLE: shopfast-products-dev
+        ENVIRONMENT: dev
+        LOG_LEVEL: DEBUG
+
+Resources:
+  ProductServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: shopfast-product-service-dev
+      CodeUri: .
+      Handler: handler.lambda_handler
+      Description: Product catalog service for ShopFast
+      Tracing: PassThrough
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: shopfast-products-dev
+
+  ProductServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/shopfast-product-service-dev
+      RetentionInDays: 1
+
+Outputs:
+  ProductServiceFunction:
+    Description: Product Service Lambda Function ARN
+    Value: !GetAtt ProductServiceFunction.Arn
+

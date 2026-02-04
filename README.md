@@ -1,54 +1,34 @@
-# README Template
+# Troubleshooting and Optimization in AWS for Developers
 
-Below is a template provided for use when building your README file for students.
+## Overview
 
-# Project Title
-
-Project description goes here.
+This repository contains the course project for "Troubleshooting and Optimization in AWS for Developers". You will work with ShopFast, a simulated e-commerce platform experiencing production issues.
 
 ## Getting Started
 
-Instructions for how to get a copy of the project running on your local machine.
+All project materials are located in the `starter/` directory:
 
-### Dependencies
+1. Navigate to `starter/`
+2. Follow the instructions in `starter/README.md` for Cloud9 setup
+3. Review `documentation/Project_Instructions.md` for detailed requirements
+4. Check `documentation/Project_Rubric.md` for grading criteria
 
-```
-Examples here
-```
+## Prerequisites
 
-### Installation
+- AWS Account with appropriate permissions
+- Basic familiarity with AWS Console
+- Understanding of Lambda, DynamoDB, CloudWatch, and X-Ray
 
-Step by step explanation of how to get a dev environment running.
-
-List out the steps
-
-```
-Give an example here
-```
-
-## Testing
-
-Explain the steps needed to run any automated tests
-
-### Break Down Tests
-
-Explain what each test does and why
+## Project Structure
 
 ```
-Examples here
+├── starter/                     # All project materials
+│   ├── README.md               # Getting started guide
+│   ├── bootstrap_scripts/      # Infrastructure deployment
+│   ├── starter_code/           # Application code to troubleshoot
+│   └── documentation/          # Instructions and rubric
+└── README.md                   # This file
 ```
-
-## Project Instructions
-
-This section should contain all the student deliverables for this project.
-
-## Built With
-
-* [Item1](www.item1.com) - Description of item
-* [Item2](www.item2.com) - Description of item
-* [Item3](www.item3.com) - Description of item
-
-Include all items used to build project.
 
 ## License
 
