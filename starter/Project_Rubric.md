@@ -26,8 +26,7 @@ This project is graded on a **pass/fail** basis.
 
 | Criteria | Submission Requirements | Reviewer Tip |
 |----------|------------------------|--------------|
-| **Correlation ID propagation** | Screenshots showing correlation ID present in logs across multiple services for the same request. | Check that the same correlation ID appears in Lambda and downstream services. |
-| **X-Ray on containers** | Service map showing ECS tasks and/or EKS pods with proper trace segments. | Container traces must show subsegments for outgoing calls (database, HTTP, etc.). |
+| **Correlation ID propagation** | Screenshots showing correlation ID present in logs across multiple services for the same request. | Check that the same correlation ID appears in API Gateway, Lambda, and downstream services. |
 | **X-Ray annotations/metadata** | X-Ray trace screenshot showing custom annotations (user_id, order_id) and metadata. | Annotations must be visible and searchable. Metadata should contain debugging context. |
 | **Trace SNS/SQS flows** | X-Ray traces showing message propagation through SNS/SQS to consumer functions. | Should be able to follow a message from producer to consumer. |
 | **Enhanced metrics** | Multiple metric types (4+) with multiple dimensions (2+). | Check dimension cardinality is reasonable. |
@@ -44,7 +43,7 @@ This project is graded on a **pass/fail** basis.
 | **Logs Insights queries** | At least 2 Logs Insights queries showing error identification. Must include actual queries and explanation of findings. | Queries should use appropriate functions (filter, parse, stats). Simple `fields *` queries do not demonstrate skill. |
 | **Lambda debugging** | Documentation of Lambda issue identification using CloudWatch Logs, including error type and stack trace analysis. | Student should demonstrate ability to find specific invocations and correlate with request context. |
 | **X-Ray trace analysis** | X-Ray trace screenshot showing analysis of at least one issue, identifying slow or failing operations. | Trace should show timing breakdown. Student should identify which specific operations are problematic. |
-| **Container debugging** | Documentation of at least one ECS or EKS issue including logs, root cause, and resolution. | Student must show understanding of why container failed, not just that it failed. |
+| **Step Functions debugging** | Documentation of Step Functions workflow issue identification using execution history and CloudWatch Logs. | Student should demonstrate ability to identify failed states and understand workflow execution flow. |
 | **Issue documentation** | Documentation of at least 3 distinct issues with: symptoms, root cause, fix applied, and verification evidence. | Each issue should be clearly different. Fixes must address actual root cause. |
 | **Fix verification** | Evidence (logs, metrics, or traces) showing that fixes resolved the identified issues. | Before/after comparison should show measurable improvement. |
 
@@ -52,11 +51,9 @@ This project is graded on a **pass/fail** basis.
 
 | Criteria | Submission Requirements | Reviewer Tip |
 |----------|------------------------|--------------|
-| **ECS task failure analysis** | Documentation including task stopped reason, exit code analysis, and applied fix. | Student must demonstrate understanding of ECS failure modes (OOM, dependency, config). |
-| **EKS pod debugging** | kubectl describe output, event analysis, and resolution of scheduling or crash issues. | Look for proper use of kubectl commands and understanding of Kubernetes concepts. |
 | **SNS/SQS message flow** | Analysis including DLQ inspection and message format validation. | Should demonstrate understanding of async patterns and failure modes. |
 | **EventBridge debugging** | Documentation of rule issue with event pattern analysis and correction. | Show before/after event pattern. Rule correction should be specific and verifiable. |
-| **Step Functions debugging** | Execution history showing failed state identification and analysis. | Should show ability to navigate execution history and identify specific failure points. |
+| **Step Functions advanced** | Detailed execution history analysis showing state machine debugging across multiple states. | Should show ability to navigate execution history and identify specific failure points. |
 | **Log-trace correlation** | Documentation showing correlation of logs with X-Ray traces using correlation ID or request ID. | Must demonstrate actual correlation technique, not just viewing both separately. |
 
 ---
@@ -78,11 +75,10 @@ This project is graded on a **pass/fail** basis.
 
 | Criteria | Submission Requirements | Reviewer Tip |
 |----------|------------------------|--------------|
-| **Database query profiling** | DynamoDB consumed capacity or RDS Performance Insights analysis showing slow query identification. | Should show specific query patterns that need optimization. |
-| **CloudFront configuration** | Cache behavior settings showing appropriate behaviors for different content types. | Configuration should make sense for content being served. |
-| **CloudFront TTLs** | TTL configuration with justification for different content types. | TTLs should be reasonable (not causing excessive misses or stale content). |
+| **Database query profiling** | DynamoDB consumed capacity analysis showing identification of inefficient access patterns. | Should show specific query patterns that need optimization. |
+| **CloudFront configuration** | Cache behavior settings showing appropriate behaviors for static content types (HTML, JS, CSS, images). | Configuration should make sense for static assets being served. |
+| **CloudFront TTLs** | TTL configuration with justification for static content types. | TTLs should be reasonable (not causing excessive misses or stale content). |
 | **Cache hit monitoring** | Cache hit rate metrics showing caching effectiveness. | Should show measurable improvement in hit rate or reduced origin requests. |
-| **Container optimization** | ECS task definition showing optimized CPU/memory limits with utilization data justification. | Resource limits should match actual utilization with appropriate headroom. |
 | **SNS filter policies** | Filter policy JSON showing message filtering logic with evidence of reduced processing. | Filter syntax must be correct. Should filter on appropriate message attributes. |
 
 ---
@@ -93,7 +89,7 @@ This project is graded on a **pass/fail** basis.
 
 | Criteria | Submission Requirements | Reviewer Tip |
 |----------|------------------------|--------------|
-| **Health endpoint** | Curl output or screenshot showing health endpoint response with dependency check. | Health endpoint should check at least one dependency (database or cache), not just return 200 OK. |
+| **Health endpoint** | AWS Lambda invoke output or screenshot showing health endpoint response with dependency check. | Health endpoint should check at least one dependency (database or cache), not just return 200 OK. |
 | **CloudWatch alarms** | Screenshot showing at least 3 alarms covering different failure scenarios. | Alarms should cover critical failure modes (Lambda errors, Lambda duration, DynamoDB throttling, etc.). |
 | **Alarm thresholds** | Alarm configuration showing thresholds with brief justification. | Thresholds should be reasonable, not arbitrary values. |
 | **SNS notification topic** | SNS topic with subscription showing alarm notification configuration. | Should demonstrate notification setup connected to alarms. |
@@ -103,19 +99,54 @@ This project is graded on a **pass/fail** basis.
 
 | Criteria | Submission Requirements | Reviewer Tip |
 |----------|------------------------|--------------|
-| **Container health probes** | Task definition or pod spec showing liveness and readiness probes with appropriate intervals. | Probe configuration should include reasonable timeout, interval, and failure threshold values. |
 | **Composite alarms** | Composite alarm configuration or tiered alerting (warning vs critical). | Should demonstrate understanding of alert fatigue and actionable alerting principles. |
 | **EventBridge rules** | EventBridge rule showing event pattern matching for operational events. | Rule should capture meaningful events and integrate with notification workflow. |
 | **SLI/SLO dashboard** | Dashboard showing availability, latency, error rate with SLO targets indicated. | SLIs should measure customer-facing service health. Targets should be realistic. |
-| **Resource utilization** | Analysis of resource utilization with capacity planning recommendations. | Analysis should be data-driven and consider cost-performance tradeoffs. |
+| **Resource utilization** | Analysis of Lambda and DynamoDB resource utilization with capacity planning recommendations. | Analysis should be data-driven and consider cost-performance tradeoffs. |
 
 ---
 
 ## Submission Guidelines
 
+### Screenshot Naming Convention
+
+All screenshots must follow this standardized naming pattern:
+
+```
+Project_Pt_X_screenshot_Y.png
+```
+
+Where:
+- **X** = Part number (1-4)
+- **Y** = Screenshot number within that part (sequential)
+
+**Examples**: `Project_Pt_1_screenshot_1.png`, `Project_Pt_2_screenshot_3.png`
+
+#### Required Screenshots by Part
+
+| Part | Screenshot | Description |
+|------|------------|-------------|
+| 1 | `Project_Pt_1_screenshot_1.png` | CloudWatch Logs showing JSON structured logs |
+| 1 | `Project_Pt_1_screenshot_2.png` | X-Ray service map with Lambda traces |
+| 1 | `Project_Pt_1_screenshot_3.png` | CloudWatch Metrics showing custom EMF metrics |
+| 1 | `Project_Pt_1_screenshot_4.png` | Operational dashboard with 3+ widgets |
+| 2 | `Project_Pt_2_screenshot_1.png` | Logs Insights query results |
+| 2 | `Project_Pt_2_screenshot_2.png` | X-Ray trace showing issue root cause |
+| 2 | `Project_Pt_2_screenshot_3.png` | Lambda memory before/after metrics |
+| 2 | `Project_Pt_2_screenshot_4.png` | Log volume comparison (DEBUG vs INFO) |
+| 2 | `Project_Pt_2_screenshot_5.png` | DLQ message inspection |
+| 3 | `Project_Pt_3_screenshot_1.png` | X-Ray trace with performance bottlenecks |
+| 3 | `Project_Pt_3_screenshot_2.png` | Lambda memory optimization comparison |
+| 3 | `Project_Pt_3_screenshot_3.png` | ElastiCache integration (cache hit/miss logs) |
+| 4 | `Project_Pt_4_screenshot_1.png` | Health endpoint response |
+| 4 | `Project_Pt_4_screenshot_2.png` | CloudWatch alarms configuration |
+| 4 | `Project_Pt_4_screenshot_3.png` | SNS notification email received |
+
+Additional screenshots for stretch goals should continue the sequence (e.g., `Project_Pt_1_screenshot_5.png` for Part 1 stretch goal screenshots).
+
 ### Required Format
 
-1. **Screenshots** must be clearly legible with relevant portions visible
+1. **Screenshots** must be clearly legible with relevant portions visible and follow the naming convention above
 2. **Code snippets** must be in code blocks or syntax-highlighted
 3. **Documentation** must clearly explain what was done and why
 4. **Before/after comparisons** must include timestamps or version indicators
