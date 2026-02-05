@@ -284,7 +284,7 @@ Look for: Custom metrics `ProductViews` and `Errors` with the `Service=product-s
 
 **Problem:** There's no centralized view of application health. To understand what's happening, you'd have to check Lambda metrics, CloudWatch Logs, and custom metrics separately.
 
-**Task:** Create a CloudWatch dashboard named "ShopFast MVP Dashboard" with at least 3 widgets:
+**Task:** Create a CloudWatch dashboard named "ShopFast-MVP-Dashboard" with at least 3 widgets:
 1. Lambda Invocations/Errors for `shopfast-product-service-dev`
 2. Lambda Duration (P50 latency minimum)
 3. At least one custom EMF metric from `ShopFast/Application` namespace
@@ -297,10 +297,10 @@ Run the following command in Cloud9 to verify the dashboard exists:
 aws cloudwatch list-dashboards | grep ShopFast
 ```
 
-Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
+Or view in AWS Console > CloudWatch > Dashboards > ShopFast-MVP-Dashboard
 
 **Submitting Your Answer:**
-- **Screenshot**: Take a screenshot of your CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible (Lambda Invocations/Errors, Lambda Duration, and at least one custom EMF metric). Save it as `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
+- **Screenshot**: Take a screenshot of your CloudWatch Dashboard named "ShopFast-MVP-Dashboard" with 3+ widgets visible (Lambda Invocations/Errors, Lambda Duration, and at least one custom EMF metric). Save it as `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
 
 ---
 
@@ -309,7 +309,7 @@ Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
 - `screenshots/Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`: CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON entries containing `timestamp`, `level`, `service`, `message` fields
 - `screenshots/Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible
 - `screenshots/Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics
-- `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible
+- `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast-MVP-Dashboard" with 3+ widgets visible
 - **Code:** Your modified `starter_code/lambdas/product-service/handler.py` showing structured logging function and EMF metric emission
 
 ---

@@ -16,7 +16,7 @@ This project is graded on a **pass/fail** basis.
 | Resource Type | Name |
 |---------------|------|
 | Lambda Functions | `shopfast-product-service-dev`, `shopfast-notification-handler-dev` |
-| Dashboard | "ShopFast MVP Dashboard" |
+| Dashboard | "ShopFast-MVP-Dashboard" |
 | Metrics Namespace | `ShopFast/Application` |
 | DynamoDB Table | `shopfast-products-dev` |
 | Step Functions | `shopfast-product-workflow-dev` |
@@ -37,7 +37,7 @@ This project is graded on a **pass/fail** basis.
 | **Implement structured JSON logging** - At the end of the project, the learner will be able to implement structured JSON logging on Lambda functions in order to enable efficient log analysis in production. | `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`: CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON entries containing `timestamp`, `level`, `service`, `message` fields. **Code:** Your modified `handler.py` showing structured logging function. |
 | **Enable X-Ray distributed tracing** - At the end of the project, the learner will be able to enable X-Ray tracing on Lambda functions in order to visualize request flows and identify bottlenecks. | `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible. **Config:** `template.yaml` with `Tracing: Active`. |
 | **Publish custom EMF metrics** - At the end of the project, the learner will be able to publish custom metrics using EMF in order to track application-specific KPIs. | `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics (e.g., `ProductViews`, `Errors`) with recent data points. **Code:** Your modified `handler.py` showing EMF metric emission function. |
-| **Create operational dashboard** - At the end of the project, the learner will be able to create a CloudWatch dashboard in order to provide at-a-glance visibility into application health. | `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible: (1) Lambda Invocations/Errors, (2) Lambda Duration/Latency, (3) Custom EMF metric. |
+| **Create operational dashboard** - At the end of the project, the learner will be able to create a CloudWatch dashboard in order to provide at-a-glance visibility into application health. | `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast-MVP-Dashboard" with 3+ widgets visible: (1) Lambda Invocations/Errors, (2) Lambda Duration/Latency, (3) Custom EMF metric. |
 
 ### Stretch Goals (Optional)
 

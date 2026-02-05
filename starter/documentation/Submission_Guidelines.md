@@ -55,7 +55,7 @@ Where:
 | `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png` | CloudWatch Logs with JSON structured logs containing `timestamp`, `level`, `service`, `message` |
 | `Project_Pt_1_Screenshot_2_XRay_Service_Map.png` | X-Ray service map with downstream services and subsegments |
 | `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png` | CloudWatch Metrics namespace `ShopFast/Application` with 2+ metrics |
-| `Project_Pt_1_Screenshot_4_Operational_Dashboard.png` | "ShopFast MVP Dashboard" with 3+ widgets |
+| `Project_Pt_1_Screenshot_4_Operational_Dashboard.png` | "ShopFast-MVP-Dashboard" with 3+ widgets |
 
 **Stretch Goal Screenshots (Optional)**
 
