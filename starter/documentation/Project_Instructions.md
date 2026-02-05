@@ -85,6 +85,27 @@ To access Cloud9:
 
 ---
 
+## Submitting Your Work
+
+### Folder Structure
+
+As you complete this project, save your deliverables in the following folders:
+
+- **Screenshots**: Save all screenshots to the `screenshots/` folder in the project root
+- **Analysis Files**: Save all analysis markdown files to the `solution_analyses/` folder in the project root
+- **Code**: Your code changes will be in `starter_code/`
+
+### Final Submission
+
+When you have completed all MVP requirements:
+1. Ensure all screenshots are in the `screenshots/` folder with the exact filenames specified in each task
+2. Ensure all analysis files are in the `solution_analyses/` folder with the exact filenames specified
+3. Verify your code changes are saved in `starter_code/`
+4. Zip your entire project folder
+5. Submit the zip file via the Udacity project submission console
+
+---
+
 ## Instructions
 
 ### Part 1: Implement Comprehensive Observability
@@ -140,7 +161,8 @@ aws logs filter-log-events \
 {"timestamp": "2024-01-15T12:00:00.000Z", "level": "INFO", "service": "product-service", "message": "Request received", "path": "/products"}
 ```
 
-**Screenshot:** `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON log entries visible. The logs must show `timestamp`, `level`, `service`, and `message` fields. Save it as `screenshots/Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`
 
 ---
 
@@ -166,7 +188,8 @@ Then check the X-Ray console for traces: AWS Console > X-Ray > Traces > Filter b
 
 Look for: Service map showing `shopfast-product-service-dev` with connections to downstream services (DynamoDB).
 
-**Screenshot:** `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the X-Ray service map showing `shopfast-product-service-dev` with connections to downstream services (DynamoDB). Save it as `screenshots/Project_Pt_1_Screenshot_2_XRay_Service_Map.png`
 
 ---
 
@@ -196,7 +219,8 @@ Wait 1-2 minutes for metrics to appear, then check: AWS Console > CloudWatch > M
 
 Look for: Custom metrics `ProductViews` and `Errors` with the `Service=product-service` dimension.
 
-**Screenshot:** `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics (`ProductViews` and `Errors`) with the `Service=product-service` dimension. Save it as `screenshots/Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`
 
 ---
 
@@ -219,16 +243,17 @@ aws cloudwatch list-dashboards | grep ShopFast
 
 Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
 
-**Screenshot:** `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of your CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible (Lambda Invocations/Errors, Lambda Duration, and at least one custom EMF metric). Save it as `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
 
 ---
 
 #### MVP Deliverables
 
-- `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`: CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON entries containing `timestamp`, `level`, `service`, `message` fields
-- `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible
-- `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics
-- `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible
+- `screenshots/Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`: CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON entries containing `timestamp`, `level`, `service`, `message` fields
+- `screenshots/Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible
+- `screenshots/Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics
+- `screenshots/Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible
 - **Code:** Your modified `starter_code/lambdas/product-service/handler.py` showing structured logging function and EMF metric emission
 
 ---
@@ -267,11 +292,11 @@ Expand the dashboard to include:
 
 #### Stretch Goal Deliverables
 
-- `Project_Pt_1_Screenshot_5_Correlation_IDs.png`: CloudWatch Logs showing the SAME correlation ID appearing in entries from multiple services
-- `Project_Pt_1_Screenshot_6_XRay_Annotations.png`: X-Ray trace details with "Annotations" tab showing `user_id` and `product_id`
-- `Project_Pt_1_Screenshot_7_Async_Message_Trace.png`: X-Ray trace spanning SNS publish through to Lambda invocation
-- `Project_Pt_1_Screenshot_8_Enhanced_Metrics.png`: CloudWatch Metrics showing 4+ metric types with 2+ dimensions
-- `Project_Pt_1_Screenshot_9_Enhanced_Dashboard.png`: Dashboard with widgets covering all layers plus Alarm Status widget
+- `screenshots/Project_Pt_1_Screenshot_5_Correlation_IDs.png`: Take a screenshot of CloudWatch Logs showing the SAME correlation ID appearing in entries from multiple services. Save it as `screenshots/Project_Pt_1_Screenshot_5_Correlation_IDs.png`
+- `screenshots/Project_Pt_1_Screenshot_6_XRay_Annotations.png`: Take a screenshot of the X-Ray trace details with "Annotations" tab showing `user_id` and `product_id`. Save it as `screenshots/Project_Pt_1_Screenshot_6_XRay_Annotations.png`
+- `screenshots/Project_Pt_1_Screenshot_7_Async_Message_Trace.png`: Take a screenshot of an X-Ray trace spanning SNS publish through to Lambda invocation. Save it as `screenshots/Project_Pt_1_Screenshot_7_Async_Message_Trace.png`
+- `screenshots/Project_Pt_1_Screenshot_8_Enhanced_Metrics.png`: Take a screenshot of CloudWatch Metrics showing 4+ metric types with 2+ dimensions. Save it as `screenshots/Project_Pt_1_Screenshot_8_Enhanced_Metrics.png`
+- `screenshots/Project_Pt_1_Screenshot_9_Enhanced_Dashboard.png`: Take a screenshot of your enhanced dashboard with widgets covering all layers plus an Alarm Status widget. Save it as `screenshots/Project_Pt_1_Screenshot_9_Enhanced_Dashboard.png`
 
 ---
 
@@ -327,7 +352,8 @@ fields @timestamp, level, message
 
 **Verification:** Run the query and observe aggregated/filtered results (not just raw log output).
 
-**Screenshot:** `Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the CloudWatch Logs Insights console showing your query with `filter`, `parse`, or `stats` commands. The results must show aggregated or filtered data, not raw log output. Save it as `screenshots/Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`
 
 ---
 
@@ -350,10 +376,11 @@ fields @timestamp, level, message
 - The 3-second timeout causes requests to fail before completion
 - Look for patterns: timeouts happen on `/products` endpoint, not `/products/{id}`
 
-**Screenshot:** `Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`
-**Screenshot:** `Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`
-**Analysis:** `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
-**Analysis:** `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of a CloudWatch Logs entry showing the request ID, timestamp, full stack trace, and error type (e.g., `Task timed out after 3.00 seconds`). Save it as `screenshots/Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`
+- **Screenshot**: Take a screenshot of the X-Ray trace detail view with the timeline expanded, showing segment durations for each operation. Save it as `screenshots/Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`
+- **Analysis**: Write an analysis explaining the error type, the affected code path, and the root cause of the Lambda errors. Save it as `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
+- **Analysis**: Write an analysis identifying the slowest segment in X-Ray traces, its latency, and why it's slow. Save it as `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
 
 ---
 
@@ -376,8 +403,9 @@ fields @timestamp, level, message
 - Check if there's a timestamp that's set far in the future (e.g., year 2099)
 - The execution graph shows exactly which state is currently active
 
-**Screenshot:** `Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`
-**Analysis:** `solution_analyses/Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the Step Functions execution history showing a stuck or failed execution, with the execution graph and error details visible. Save it as `screenshots/Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`
+- **Analysis**: Write an analysis documenting the root cause of the Step Functions failure (e.g., Wait state misconfiguration) and your resolution. Save it as `solution_analyses/Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
 
 ---
 
@@ -399,23 +427,24 @@ Document and fix at least **3 distinct issues** across the platform.
 2. Step Functions stuck execution (Wait state misconfiguration)
 3. One additional issue from: DynamoDB throttling, EventBridge pattern mismatch, or SQS DLQ messages
 
-**Screenshot:** `Project_Pt_2_Screenshot_5_Issue_Documentation.png`
-**Screenshot:** `Project_Pt_2_Screenshot_6_Before_Fix.png`
-**Screenshot:** `Project_Pt_2_Screenshot_7_After_Fix.png`
-**Analysis:** `solution_analyses/Project_Pt_2_Analysis_4_Issue_Documentation.md` (3+ issues documented)
-**Analysis:** `solution_analyses/Project_Pt_2_Analysis_5_Fix_Verification.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot showing evidence of symptoms observed (error messages, failed requests, etc.). Save it as `screenshots/Project_Pt_2_Screenshot_5_Issue_Documentation.png`
+- **Screenshot**: Take a screenshot of a metric or log BEFORE your fix was applied, with timestamp visible. Save it as `screenshots/Project_Pt_2_Screenshot_6_Before_Fix.png`
+- **Screenshot**: Take a screenshot of the SAME metric or log AFTER your fix was applied, with a later timestamp visible. Save it as `screenshots/Project_Pt_2_Screenshot_7_After_Fix.png`
+- **Analysis**: Write a comprehensive issue documentation file describing at least 3 distinct issues you found. For each issue, include: Symptoms, Investigation, Root Cause, Fix, and Verification. Save it as `solution_analyses/Project_Pt_2_Analysis_4_Issue_Documentation.md`
+- **Analysis**: Write a fix verification document with before/after evidence proving your fixes worked. Save it as `solution_analyses/Project_Pt_2_Analysis_5_Fix_Verification.md`
 
 ---
 
 #### MVP Deliverables
 
-- `Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`: Logs Insights console showing query with `filter`, `parse`, or `stats` - results must show aggregated/filtered data
-- `Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`: CloudWatch Logs entry showing request ID, timestamp, full stack trace, and error type
-- `Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`: X-Ray trace detail view with timeline expanded, showing segment durations
-- `Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`: Step Functions execution history showing failed state and error tab
-- `Project_Pt_2_Screenshot_5_Issue_Documentation.png`: Screenshot evidence of symptoms observed
-- `Project_Pt_2_Screenshot_6_Before_Fix.png`: Metric/log BEFORE fix with timestamp visible
-- `Project_Pt_2_Screenshot_7_After_Fix.png`: SAME metric/log AFTER fix with later timestamp
+- `screenshots/Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`: Logs Insights console showing query with `filter`, `parse`, or `stats` - results must show aggregated/filtered data
+- `screenshots/Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`: CloudWatch Logs entry showing request ID, timestamp, full stack trace, and error type
+- `screenshots/Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`: X-Ray trace detail view with timeline expanded, showing segment durations
+- `screenshots/Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`: Step Functions execution history showing failed state and error tab
+- `screenshots/Project_Pt_2_Screenshot_5_Issue_Documentation.png`: Screenshot evidence of symptoms observed
+- `screenshots/Project_Pt_2_Screenshot_6_Before_Fix.png`: Metric/log BEFORE fix with timestamp visible
+- `screenshots/Project_Pt_2_Screenshot_7_After_Fix.png`: SAME metric/log AFTER fix with later timestamp
 - **Analysis Files:**
   - `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
   - `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
@@ -447,15 +476,17 @@ Investigate Lambda-specific issues:
 
 #### Stretch Goal Deliverables
 
-- `Project_Pt_2_Screenshot_8_EventBridge_Before.png` and `Project_Pt_2_Screenshot_9_EventBridge_After.png`: EventBridge rule BEFORE and AFTER fix
-- `Project_Pt_2_Screenshot_10_DLQ_Inspection.png`: SQS console with DLQ message body expanded
-- `Project_Pt_2_Screenshot_11_StepFunctions_Advanced.png`: Step Functions execution showing multiple states
-- `Project_Pt_2_Screenshot_12_Log_Entry.png` and `Project_Pt_2_Screenshot_13_XRay_Trace.png`: Log-to-trace correlation
+- `screenshots/Project_Pt_2_Screenshot_8_EventBridge_Before.png`: Take a screenshot of the EventBridge rule configuration BEFORE your fix
+- `screenshots/Project_Pt_2_Screenshot_9_EventBridge_After.png`: Take a screenshot of the EventBridge rule configuration AFTER your fix
+- `screenshots/Project_Pt_2_Screenshot_10_DLQ_Inspection.png`: Take a screenshot of the SQS console with a DLQ message body expanded
+- `screenshots/Project_Pt_2_Screenshot_11_StepFunctions_Advanced.png`: Take a screenshot of a Step Functions execution showing multiple states
+- `screenshots/Project_Pt_2_Screenshot_12_Log_Entry.png`: Take a screenshot of a CloudWatch log entry with a request/correlation ID visible
+- `screenshots/Project_Pt_2_Screenshot_13_XRay_Trace.png`: Take a screenshot of the corresponding X-Ray trace with the same request/correlation ID
 - **Analysis Files:**
-  - `solution_analyses/Project_Pt_2_Analysis_6_EventBridge_Fix.md`
-  - `solution_analyses/Project_Pt_2_Analysis_7_DLQ_Failure_Mode.md`
-  - `solution_analyses/Project_Pt_2_Analysis_8_StepFunctions_Flow.md`
-  - `solution_analyses/Project_Pt_2_Analysis_9_Log_Trace_Correlation.md`
+  - `solution_analyses/Project_Pt_2_Analysis_6_EventBridge_Fix.md`: Document the EventBridge pattern mismatch and your fix
+  - `solution_analyses/Project_Pt_2_Analysis_7_DLQ_Failure_Mode.md`: Analyze the failure mode that caused messages to end up in the DLQ
+  - `solution_analyses/Project_Pt_2_Analysis_8_StepFunctions_Flow.md`: Document the Step Functions workflow execution flow
+  - `solution_analyses/Project_Pt_2_Analysis_9_Log_Trace_Correlation.md`: Explain how you correlated logs and traces to identify the issue
 
 ---
 
@@ -493,9 +524,10 @@ Profile, analyze, and optimize the application for better performance.
 - Cold start initialization time
 - Total request duration vs timeout setting
 
-**Screenshot:** `Project_Pt_3_Screenshot_1_Performance_Profile.png`
-**Screenshot:** `Project_Pt_3_Screenshot_2_Lambda_Metrics.png`
-**Analysis:** `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of an X-Ray trace timeline showing all segments with durations labeled (identifying the slowest operations). Save it as `screenshots/Project_Pt_3_Screenshot_1_Performance_Profile.png`
+- **Screenshot**: Take a screenshot of CloudWatch Lambda metrics showing Duration (average and p99) and MemoryUsed vs MemorySize. Save it as `screenshots/Project_Pt_3_Screenshot_2_Lambda_Metrics.png`
+- **Analysis**: Write an analysis identifying at least 2 operations that could benefit from optimization, with specific recommendations. Save it as `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
 
 ---
 
@@ -520,9 +552,10 @@ aws lambda get-function-configuration \
 
 After optimization, compare Duration metrics at different memory configurations in CloudWatch.
 
-**Screenshot:** `Project_Pt_3_Screenshot_3_Lambda_Before.png`
-**Screenshot:** `Project_Pt_3_Screenshot_4_Lambda_After.png`
-**Analysis:** `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of Lambda Duration metrics at the original memory configuration (128MB). Save it as `screenshots/Project_Pt_3_Screenshot_3_Lambda_Before.png`
+- **Screenshot**: Take a screenshot of Lambda Duration metrics at the optimized memory configuration. Save it as `screenshots/Project_Pt_3_Screenshot_4_Lambda_After.png`
+- **Analysis**: Write an analysis documenting the cost/performance tradeoff of your memory optimization, including before/after metrics. Save it as `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
 
 ---
 
@@ -567,21 +600,22 @@ aws logs filter-log-events \
   --limit 10
 ```
 
-**Screenshot:** `Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`
-**Screenshot:** `Project_Pt_3_Screenshot_6_Cache_Verification.png`
-**Code:** Your `cache_service.py` module
-**Analysis:** `solution_analyses/Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of CloudWatch Logs showing `CACHE_HIT`, `CACHE_MISS`, and `CACHE_SET` log entries with keys and TTL values visible. Save it as `screenshots/Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`
+- **Screenshot**: Take a screenshot demonstrating cache usage (e.g., multiple CACHE_HIT entries for the same key, or a cache hit count metric > 0). Save it as `screenshots/Project_Pt_3_Screenshot_6_Cache_Verification.png`
+- **Code**: Your `cache_service.py` module showing Redis client initialization with `shopfast-redis-dev` endpoint
+- **Analysis**: Write an analysis justifying your choice of cache TTL values (why 300 seconds or your chosen value is appropriate for product data). Save it as `solution_analyses/Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
 
 ---
 
 #### MVP Deliverables
 
-- `Project_Pt_3_Screenshot_1_Performance_Profile.png`: X-Ray trace timeline with all segments visible and durations labeled
-- `Project_Pt_3_Screenshot_2_Lambda_Metrics.png`: CloudWatch metrics showing Duration (average and p99) and MemoryUsed vs MemorySize
-- `Project_Pt_3_Screenshot_3_Lambda_Before.png`: Lambda Duration metrics at original memory configuration
-- `Project_Pt_3_Screenshot_4_Lambda_After.png`: Lambda Duration metrics at optimized memory configuration
-- `Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`: CloudWatch Logs showing `CACHE_HIT`, `CACHE_MISS`, `CACHE_SET` with keys and TTL values
-- `Project_Pt_3_Screenshot_6_Cache_Verification.png`: Cache hit count > 0 demonstrating cache usage
+- `screenshots/Project_Pt_3_Screenshot_1_Performance_Profile.png`: X-Ray trace timeline with all segments visible and durations labeled
+- `screenshots/Project_Pt_3_Screenshot_2_Lambda_Metrics.png`: CloudWatch metrics showing Duration (average and p99) and MemoryUsed vs MemorySize
+- `screenshots/Project_Pt_3_Screenshot_3_Lambda_Before.png`: Lambda Duration metrics at original memory configuration
+- `screenshots/Project_Pt_3_Screenshot_4_Lambda_After.png`: Lambda Duration metrics at optimized memory configuration
+- `screenshots/Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`: CloudWatch Logs showing `CACHE_HIT`, `CACHE_MISS`, `CACHE_SET` with keys and TTL values
+- `screenshots/Project_Pt_3_Screenshot_6_Cache_Verification.png`: Cache hit count > 0 demonstrating cache usage
 - **Code:** Your `cache_service.py` showing Redis client initialization with `shopfast-redis-dev` endpoint
 - **Analysis Files:**
   - `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
@@ -615,12 +649,12 @@ Add SNS filter policies to:
 
 #### Stretch Goal Deliverables
 
-- `Project_Pt_3_Screenshot_8_DynamoDB_Metrics.png`: CloudWatch metrics showing ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits
-- `Project_Pt_3_Screenshot_9_SNS_Filter_Policy.png`: SNS console showing filter policy JSON
-- `Project_Pt_3_Screenshot_10_CloudFront_Behaviors.png`: CloudFront cache behaviors with path patterns and TTL settings
-- `Project_Pt_3_Screenshot_11_CloudFront_TTLs.png`: CloudFront TTL configuration for different content types
-- `Project_Pt_3_Screenshot_12_Cache_Hit_Rate.png`: CloudFront statistics showing cache hit rate percentage
-- **Analysis File:** `solution_analyses/Project_Pt_3_Analysis_4_DynamoDB_Patterns.md`
+- `screenshots/Project_Pt_3_Screenshot_8_DynamoDB_Metrics.png`: Take a screenshot of CloudWatch metrics showing ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits
+- `screenshots/Project_Pt_3_Screenshot_9_SNS_Filter_Policy.png`: Take a screenshot of the SNS console showing your filter policy JSON
+- `screenshots/Project_Pt_3_Screenshot_10_CloudFront_Behaviors.png`: Take a screenshot of CloudFront cache behaviors with path patterns and TTL settings
+- `screenshots/Project_Pt_3_Screenshot_11_CloudFront_TTLs.png`: Take a screenshot of CloudFront TTL configuration for different content types
+- `screenshots/Project_Pt_3_Screenshot_12_Cache_Hit_Rate.png`: Take a screenshot of CloudFront statistics showing cache hit rate percentage
+- **Analysis File:** `solution_analyses/Project_Pt_3_Analysis_4_DynamoDB_Patterns.md`: Document DynamoDB query patterns and optimization opportunities
 
 ---
 
@@ -680,8 +714,9 @@ Then view the response:
 cat output.json
 ```
 
-**Screenshot:** `Project_Pt_4_Screenshot_1_Health_Endpoint.png`
-**Code:** Your `health_handler.py` module
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the Lambda invoke output (or CloudWatch Logs) showing the health endpoint JSON response with `status`, `dependencies`, and `timestamp` fields. Save it as `screenshots/Project_Pt_4_Screenshot_1_Health_Endpoint.png`
+- **Code**: Your `health_handler.py` module showing DynamoDB and optionally Redis connectivity checks
 
 ---
 
@@ -704,9 +739,10 @@ aws cloudwatch describe-alarms \
   --query 'MetricAlarms[].{Name:AlarmName,State:StateValue,Threshold:Threshold}'
 ```
 
-**Screenshot:** `Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`
-**Screenshot:** `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`
-**Analysis:** `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the CloudWatch Alarms console showing all three alarms: `ShopFast-dev-ProductService-Errors`, `ShopFast-dev-ProductService-Duration`, and `ShopFast-dev-DynamoDB-Throttling`. Save it as `screenshots/Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`
+- **Screenshot**: Take a screenshot of an alarm configuration detail page showing thresholds and evaluation periods. Save it as `screenshots/Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`
+- **Analysis**: Write an analysis justifying your choice of alarm thresholds (why these specific values were chosen based on baseline metrics). Save it as `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
 
 ---
 
@@ -740,18 +776,19 @@ aws cloudwatch set-alarm-state \
 
 Check your email for the alarm notification.
 
-**Screenshot:** `Project_Pt_4_Screenshot_4_SNS_Subscription.png`
-**Screenshot:** `Project_Pt_4_Screenshot_5_Notification_Email.png`
+**Submitting Your Answer:**
+- **Screenshot**: Take a screenshot of the SNS topic console showing your email subscription with "Confirmed" status. Save it as `screenshots/Project_Pt_4_Screenshot_4_SNS_Subscription.png`
+- **Screenshot**: Take a screenshot of an actual email you received showing the alarm name, state change, and timestamp. Save it as `screenshots/Project_Pt_4_Screenshot_5_Notification_Email.png`
 
 ---
 
 #### MVP Deliverables
 
-- `Project_Pt_4_Screenshot_1_Health_Endpoint.png`: Lambda invoke output showing JSON: `{"status": "healthy", "dependencies": {"dynamodb": "connected", "redis": "connected"}}`
-- `Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`: All three alarms: `ShopFast-dev-ProductService-Errors`, `ShopFast-dev-ProductService-Duration`, `ShopFast-dev-DynamoDB-Throttling`
-- `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`: Alarm configuration details showing thresholds with evaluation periods
-- `Project_Pt_4_Screenshot_4_SNS_Subscription.png`: SNS topic showing email subscription with "Confirmed" status
-- `Project_Pt_4_Screenshot_5_Notification_Email.png`: Actual email received showing alarm name, state change, and timestamp
+- `screenshots/Project_Pt_4_Screenshot_1_Health_Endpoint.png`: Lambda invoke output showing JSON: `{"status": "healthy", "dependencies": {"dynamodb": "connected", "redis": "connected"}}`
+- `screenshots/Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`: All three alarms: `ShopFast-dev-ProductService-Errors`, `ShopFast-dev-ProductService-Duration`, `ShopFast-dev-DynamoDB-Throttling`
+- `screenshots/Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`: Alarm configuration details showing thresholds with evaluation periods
+- `screenshots/Project_Pt_4_Screenshot_4_SNS_Subscription.png`: SNS topic showing email subscription with "Confirmed" status
+- `screenshots/Project_Pt_4_Screenshot_5_Notification_Email.png`: Actual email received showing alarm name, state change, and timestamp
 - **Code:** Your `health_handler.py` showing connectivity checks
 - **Analysis File:** `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
 
@@ -783,13 +820,13 @@ Analyze and document:
 
 #### Stretch Goal Deliverables
 
-- `Project_Pt_4_Screenshot_6_EventBridge_Rule.png`: EventBridge rule on `shopfast-events-dev` bus with event pattern and target
-- `Project_Pt_4_Screenshot_7_SLI_SLO_Dashboard.png`: Dashboard with availability, latency p99, and error rate with target lines
-- `Project_Pt_4_Screenshot_8_Composite_Alarms.png`: Composite alarm or tiered alerting configuration
-- `Project_Pt_4_Screenshot_9_Resource_Utilization.png`: Lambda concurrent executions, DynamoDB consumed vs provisioned capacity
+- `screenshots/Project_Pt_4_Screenshot_6_EventBridge_Rule.png`: Take a screenshot of an EventBridge rule on `shopfast-events-dev` bus with event pattern and target visible
+- `screenshots/Project_Pt_4_Screenshot_7_SLI_SLO_Dashboard.png`: Take a screenshot of your SLI/SLO dashboard with availability, latency p99, and error rate with target lines
+- `screenshots/Project_Pt_4_Screenshot_8_Composite_Alarms.png`: Take a screenshot of a composite alarm or tiered alerting configuration
+- `screenshots/Project_Pt_4_Screenshot_9_Resource_Utilization.png`: Take a screenshot showing Lambda concurrent executions and DynamoDB consumed vs provisioned capacity
 - **Analysis Files:**
-  - `solution_analyses/Project_Pt_4_Analysis_2_Composite_Alarm_Design.md`
-  - `solution_analyses/Project_Pt_4_Analysis_3_Capacity_Planning.md`
+  - `solution_analyses/Project_Pt_4_Analysis_2_Composite_Alarm_Design.md`: Document your composite alarm design and why it reduces alert fatigue
+  - `solution_analyses/Project_Pt_4_Analysis_3_Capacity_Planning.md`: Analyze resource utilization patterns and provide capacity planning recommendations
 
 ---
 
@@ -833,11 +870,11 @@ Analyze and document:
 
 ## Submission Checklist
 
-Before submitting your project, verify you have completed the required items.
+Before submitting your project, verify you have completed the required items. All screenshots should be in the `screenshots/` folder and all analysis files should be in the `solution_analyses/` folder.
 
 ### Part 1: Observability (Required)
 
-**Screenshots:**
+**Screenshots (in `screenshots/` folder):**
 - `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`
 - `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`
 - `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`
@@ -848,7 +885,7 @@ Before submitting your project, verify you have completed the required items.
 
 ### Part 2: Debugging (Required)
 
-**Screenshots:**
+**Screenshots (in `screenshots/` folder):**
 - `Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`
 - `Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`
 - `Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`
@@ -857,16 +894,16 @@ Before submitting your project, verify you have completed the required items.
 - `Project_Pt_2_Screenshot_6_Before_Fix.png`
 - `Project_Pt_2_Screenshot_7_After_Fix.png`
 
-**Analysis Files:**
-- `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
-- `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
-- `solution_analyses/Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
-- `solution_analyses/Project_Pt_2_Analysis_4_Issue_Documentation.md`
-- `solution_analyses/Project_Pt_2_Analysis_5_Fix_Verification.md`
+**Analysis Files (in `solution_analyses/` folder):**
+- `Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
+- `Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
+- `Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
+- `Project_Pt_2_Analysis_4_Issue_Documentation.md`
+- `Project_Pt_2_Analysis_5_Fix_Verification.md`
 
 ### Part 3: Optimization (Required)
 
-**Screenshots:**
+**Screenshots (in `screenshots/` folder):**
 - `Project_Pt_3_Screenshot_1_Performance_Profile.png`
 - `Project_Pt_3_Screenshot_2_Lambda_Metrics.png`
 - `Project_Pt_3_Screenshot_3_Lambda_Before.png`
@@ -877,14 +914,14 @@ Before submitting your project, verify you have completed the required items.
 **Code:**
 - Your `cache_service.py` showing Redis integration
 
-**Analysis Files:**
-- `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
-- `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
-- `solution_analyses/Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
+**Analysis Files (in `solution_analyses/` folder):**
+- `Project_Pt_3_Analysis_1_Performance_Recommendations.md`
+- `Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
+- `Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
 
 ### Part 4: Monitoring (Required)
 
-**Screenshots:**
+**Screenshots (in `screenshots/` folder):**
 - `Project_Pt_4_Screenshot_1_Health_Endpoint.png`
 - `Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`
 - `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`
@@ -894,47 +931,47 @@ Before submitting your project, verify you have completed the required items.
 **Code:**
 - Your `health_handler.py` showing health check implementation
 
-**Analysis Files:**
-- `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
+**Analysis Files (in `solution_analyses/` folder):**
+- `Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
 
 ---
 
 ### Stretch Goals (Optional)
 
-#### Part 1: Observability
+#### Part 1: Observability (Screenshots in `screenshots/` folder)
 - `Project_Pt_1_Screenshot_5_Correlation_IDs.png`
 - `Project_Pt_1_Screenshot_6_XRay_Annotations.png`
 - `Project_Pt_1_Screenshot_7_Async_Message_Trace.png`
 - `Project_Pt_1_Screenshot_8_Enhanced_Metrics.png`
 - `Project_Pt_1_Screenshot_9_Enhanced_Dashboard.png`
 
-#### Part 2: Debugging
+#### Part 2: Debugging (Screenshots in `screenshots/` folder, analysis in `solution_analyses/` folder)
 - `Project_Pt_2_Screenshot_8_EventBridge_Before.png`
 - `Project_Pt_2_Screenshot_9_EventBridge_After.png`
 - `Project_Pt_2_Screenshot_10_DLQ_Inspection.png`
 - `Project_Pt_2_Screenshot_11_StepFunctions_Advanced.png`
 - `Project_Pt_2_Screenshot_12_Log_Entry.png`
 - `Project_Pt_2_Screenshot_13_XRay_Trace.png`
-- `solution_analyses/Project_Pt_2_Analysis_6_EventBridge_Fix.md`
-- `solution_analyses/Project_Pt_2_Analysis_7_DLQ_Failure_Mode.md`
-- `solution_analyses/Project_Pt_2_Analysis_8_StepFunctions_Flow.md`
-- `solution_analyses/Project_Pt_2_Analysis_9_Log_Trace_Correlation.md`
+- `Project_Pt_2_Analysis_6_EventBridge_Fix.md`
+- `Project_Pt_2_Analysis_7_DLQ_Failure_Mode.md`
+- `Project_Pt_2_Analysis_8_StepFunctions_Flow.md`
+- `Project_Pt_2_Analysis_9_Log_Trace_Correlation.md`
 
-#### Part 3: Optimization
+#### Part 3: Optimization (Screenshots in `screenshots/` folder, analysis in `solution_analyses/` folder)
 - `Project_Pt_3_Screenshot_8_DynamoDB_Metrics.png`
 - `Project_Pt_3_Screenshot_9_SNS_Filter_Policy.png`
 - `Project_Pt_3_Screenshot_10_CloudFront_Behaviors.png`
 - `Project_Pt_3_Screenshot_11_CloudFront_TTLs.png`
 - `Project_Pt_3_Screenshot_12_Cache_Hit_Rate.png`
-- `solution_analyses/Project_Pt_3_Analysis_4_DynamoDB_Patterns.md`
+- `Project_Pt_3_Analysis_4_DynamoDB_Patterns.md`
 
-#### Part 4: Monitoring
+#### Part 4: Monitoring (Screenshots in `screenshots/` folder, analysis in `solution_analyses/` folder)
 - `Project_Pt_4_Screenshot_6_EventBridge_Rule.png`
 - `Project_Pt_4_Screenshot_7_SLI_SLO_Dashboard.png`
 - `Project_Pt_4_Screenshot_8_Composite_Alarms.png`
 - `Project_Pt_4_Screenshot_9_Resource_Utilization.png`
-- `solution_analyses/Project_Pt_4_Analysis_2_Composite_Alarm_Design.md`
-- `solution_analyses/Project_Pt_4_Analysis_3_Capacity_Planning.md`
+- `Project_Pt_4_Analysis_2_Composite_Alarm_Design.md`
+- `Project_Pt_4_Analysis_3_Capacity_Planning.md`
 
 ---
 
