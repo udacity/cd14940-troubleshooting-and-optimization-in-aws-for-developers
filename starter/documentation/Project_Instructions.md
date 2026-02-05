@@ -71,6 +71,18 @@ All infrastructure is provisioned and ready. See the **Environment Setup Guide**
 - Initial verification commands
 - Known gaps in the current state
 
+### Running AWS CLI Commands
+
+All AWS CLI verification commands in this project should be run from the **AWS Cloud9 IDE** provided in your lab environment. Cloud9 provides:
+- Pre-configured AWS CLI with proper credentials
+- VPC connectivity to access ElastiCache Redis
+- Built-in terminal for running commands
+
+To access Cloud9:
+1. Navigate to AWS Console > Cloud9
+2. Open the `shopfast-dev` environment
+3. Use the terminal at the bottom of the IDE to run commands
+
 ---
 
 ## Instructions
@@ -102,13 +114,18 @@ Transform the under-instrumented application into a fully observable system.
 - Contextual data (request ID, product ID as appropriate)
 
 **Verification:**
+
+Run the following command in Cloud9 to invoke the Lambda and generate logs:
+
 ```bash
-# Invoke the Lambda to generate logs
 aws lambda invoke --function-name shopfast-product-service-dev \
   --payload '{"httpMethod": "GET", "path": "/products"}' \
   --cli-binary-format raw-in-base64-out output.json
+```
 
-# Check recent logs for JSON format
+Then check recent logs for JSON format:
+
+```bash
 aws logs filter-log-events \
   --log-group-name /aws/lambda/shopfast-product-service-dev \
   --limit 5
@@ -136,15 +153,16 @@ aws logs filter-log-events \
 - Redeploy the Lambda function with the updated configuration
 
 **Verification:**
+
+After redeploying, run the following command in Cloud9 to invoke the Lambda:
+
 ```bash
-# After redeploying, invoke the Lambda
 aws lambda invoke --function-name shopfast-product-service-dev \
   --payload '{"httpMethod": "GET", "path": "/products"}' \
   --cli-binary-format raw-in-base64-out output.json
-
-# Check X-Ray console for traces
-# AWS Console > X-Ray > Traces > Filter by service: shopfast-product-service-dev
 ```
+
+Then check the X-Ray console for traces: AWS Console > X-Ray > Traces > Filter by service: `shopfast-product-service-dev`
 
 Look for: Service map showing `shopfast-product-service-dev` with connections to downstream services (DynamoDB).
 
@@ -163,17 +181,18 @@ Look for: Service map showing `shopfast-product-service-dev` with connections to
 Metrics should be published to the `ShopFast/Application` namespace with a `Service` dimension set to `product-service`.
 
 **Verification:**
+
+After implementing EMF, run the following command in Cloud9 to invoke the Lambda several times:
+
 ```bash
-# After implementing EMF, invoke the Lambda several times
 for i in {1..5}; do
   aws lambda invoke --function-name shopfast-product-service-dev \
     --payload '{"httpMethod": "GET", "path": "/products"}' \
     --cli-binary-format raw-in-base64-out output.json
 done
-
-# Wait 1-2 minutes for metrics to appear
-# AWS Console > CloudWatch > Metrics > Custom Namespaces > ShopFast/Application
 ```
+
+Wait 1-2 minutes for metrics to appear, then check: AWS Console > CloudWatch > Metrics > Custom Namespaces > ShopFast/Application
 
 Look for: Custom metrics `ProductViews` and `Errors` with the `Service=product-service` dimension.
 
@@ -191,12 +210,14 @@ Look for: Custom metrics `ProductViews` and `Errors` with the `Service=product-s
 3. At least one custom EMF metric from `ShopFast/Application` namespace
 
 **Verification:**
-```bash
-# Verify dashboard exists
-aws cloudwatch list-dashboards | grep ShopFast
 
-# Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
+Run the following command in Cloud9 to verify the dashboard exists:
+
+```bash
+aws cloudwatch list-dashboards | grep ShopFast
 ```
+
+Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
 
 **Screenshot:** `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
 
@@ -488,14 +509,16 @@ Profile, analyze, and optimize the application for better performance.
 - Document before/after metrics showing improvement or cost savings
 
 **Verification:**
+
+Run the following command in Cloud9 to view the current configuration:
+
 ```bash
-# View current configuration
 aws lambda get-function-configuration \
   --function-name shopfast-product-service-dev \
   --query '{Memory: MemorySize, Timeout: Timeout}'
-
-# After optimization, compare Duration metrics at different memory configurations
 ```
+
+After optimization, compare Duration metrics at different memory configurations in CloudWatch.
 
 **Screenshot:** `Project_Pt_3_Screenshot_3_Lambda_Before.png`
 **Screenshot:** `Project_Pt_3_Screenshot_4_Lambda_After.png`
@@ -518,18 +541,26 @@ aws lambda get-function-configuration \
 - Modify `starter_code/lambdas/product-service/handler.py` to integrate caching into get_product()
 
 **Verification:**
+
+After implementing caching, run the following command in Cloud9 to invoke the Lambda for a specific product:
+
 ```bash
-# After implementing caching, invoke the Lambda twice for the same product
 aws lambda invoke --function-name shopfast-product-service-dev \
   --payload '{"httpMethod": "GET", "path": "/products/1", "pathParameters": {"id": "1"}}' \
   --cli-binary-format raw-in-base64-out output.json
+```
 
-# Second request should show CACHE_HIT in logs
+Run the same command again - the second request should show CACHE_HIT in logs:
+
+```bash
 aws lambda invoke --function-name shopfast-product-service-dev \
   --payload '{"httpMethod": "GET", "path": "/products/1", "pathParameters": {"id": "1"}}' \
   --cli-binary-format raw-in-base64-out output.json
+```
 
-# Check logs for cache operations
+Then check logs for cache operations:
+
+```bash
 aws logs filter-log-events \
   --log-group-name /aws/lambda/shopfast-product-service-dev \
   --filter-pattern "CACHE" \
@@ -634,10 +665,18 @@ Implement production-grade monitoring to maintain platform health.
 ```
 
 **Verification:**
+
+Run the following commands in Cloud9 to test the health endpoint:
+
 ```bash
 aws lambda invoke --function-name shopfast-product-service-dev \
   --payload '{"httpMethod": "GET", "path": "/health"}' \
   --cli-binary-format raw-in-base64-out output.json
+```
+
+Then view the response:
+
+```bash
 cat output.json
 ```
 
@@ -656,8 +695,10 @@ cat output.json
 3. `ShopFast-dev-DynamoDB-Throttling`: DynamoDB throttling events
 
 **Verification:**
+
+Run the following command in Cloud9 to list the alarms:
+
 ```bash
-# List alarms
 aws cloudwatch describe-alarms \
   --alarm-name-prefix "ShopFast-dev" \
   --query 'MetricAlarms[].{Name:AlarmName,State:StateValue,Threshold:Threshold}'
@@ -680,12 +721,17 @@ aws cloudwatch describe-alarms \
 - Test alert delivery
 
 **Verification:**
+
+Run the following command in Cloud9 to list SNS subscriptions (replace `ACCOUNT_ID` with your AWS account ID):
+
 ```bash
-# List SNS subscriptions
 aws sns list-subscriptions-by-topic \
   --topic-arn arn:aws:sns:us-east-1:ACCOUNT_ID:shopfast-notifications-dev
+```
 
-# Set alarm state to ALARM to test notification
+To test notification delivery, set the alarm state to ALARM:
+
+```bash
 aws cloudwatch set-alarm-state \
   --alarm-name "ShopFast-dev-ProductService-Errors" \
   --state-value ALARM \
