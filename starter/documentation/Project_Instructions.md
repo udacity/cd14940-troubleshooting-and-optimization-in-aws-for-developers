@@ -122,10 +122,11 @@ Create a CloudWatch dashboard that provides visibility into:
 
 #### MVP Deliverables
 
-- [ ] Screenshot of structured JSON log output in CloudWatch Logs → `Project_Pt_1_screenshot_1.png`
-- [ ] Screenshot of X-Ray service map showing Lambda functions → `Project_Pt_1_screenshot_2.png`
-- [ ] Screenshot of custom metrics in CloudWatch Metrics console → `Project_Pt_1_screenshot_3.png`
-- [ ] Screenshot of operational dashboard → `Project_Pt_1_screenshot_4.png`
+- `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`: CloudWatch Logs console showing log group `/aws/lambda/shopfast-product-service-dev` with JSON entries containing `timestamp`, `level`, `service`, `message` fields
+- `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible
+- `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics
+- `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible
+- **Code:** `src/handlers/productHandler.ts` showing Logger import, X-Ray `captureAWSv3Client`, and EMF `putMetric()` calls
 
 ---
 
@@ -163,9 +164,11 @@ Expand the dashboard to include:
 
 #### Stretch Goal Deliverables
 
-- [ ] Screenshot showing correlation ID propagation across services → `Project_Pt_1_screenshot_5.png`
-- [ ] Screenshot of X-Ray traces with annotations and metadata → `Project_Pt_1_screenshot_6.png`
-- [ ] Screenshot of enhanced dashboard with all widget types → `Project_Pt_1_screenshot_7.png`
+- `Project_Pt_1_Screenshot_5_Correlation_IDs.png`: CloudWatch Logs showing the SAME correlation ID appearing in entries from multiple services
+- `Project_Pt_1_Screenshot_6_XRay_Annotations.png`: X-Ray trace details with "Annotations" tab showing `user_id` and `product_id`
+- `Project_Pt_1_Screenshot_7_Async_Message_Trace.png`: X-Ray trace spanning SNS publish through to Lambda invocation
+- `Project_Pt_1_Screenshot_8_Enhanced_Metrics.png`: CloudWatch Metrics showing 4+ metric types with 2+ dimensions
+- `Project_Pt_1_Screenshot_9_Enhanced_Dashboard.png`: Dashboard with widgets covering all layers plus Alarm Status widget
 
 ---
 
@@ -224,10 +227,19 @@ Document and fix at least **3 distinct issues** across the platform.
 
 #### MVP Deliverables
 
-- [ ] CloudWatch Logs Insights queries showing identified issues (at least 2 queries) → `Project_Pt_2_screenshot_1.png`
-- [ ] X-Ray trace screenshots showing root cause analysis for at least 1 issue → `Project_Pt_2_screenshot_2.png`
-- [ ] Documentation of 3 issues found: symptoms, root cause, and fix applied
-- [ ] Evidence (logs, metrics, or traces) showing fixes resolved the issues → `Project_Pt_2_screenshot_3.png`, `Project_Pt_2_screenshot_4.png`
+- `Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`: Logs Insights console showing query with `filter`, `parse`, or `stats` - results must show aggregated/filtered data
+- `Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`: CloudWatch Logs entry showing request ID, timestamp, full stack trace, and error type
+- `Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`: X-Ray trace detail view with timeline expanded, showing segment durations
+- `Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`: Step Functions execution history showing failed state and error tab
+- `Project_Pt_2_Screenshot_5_Issue_Documentation.png`: Screenshot evidence of symptoms observed
+- `Project_Pt_2_Screenshot_6_Before_Fix.png`: Metric/log BEFORE fix with timestamp visible
+- `Project_Pt_2_Screenshot_7_After_Fix.png`: SAME metric/log AFTER fix with later timestamp
+- **Analysis Files:**
+  - `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
+  - `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
+  - `solution_analyses/Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
+  - `solution_analyses/Project_Pt_2_Analysis_4_Issue_Documentation.md` (3+ issues documented)
+  - `solution_analyses/Project_Pt_2_Analysis_5_Fix_Verification.md`
 
 ---
 
@@ -253,11 +265,15 @@ Investigate Lambda-specific issues:
 
 #### Stretch Goal Deliverables
 
-- [ ] DLQ message analysis showing failed message inspection → `Project_Pt_2_screenshot_5.png`
-- [ ] EventBridge rule pattern mismatch identification → `Project_Pt_2_screenshot_6.png`
-- [ ] Step Functions execution history showing all failed state identification → `Project_Pt_2_screenshot_7.png`
-- [ ] Documentation showing log-to-trace correlation technique
-- [ ] Lambda cold start analysis with recommendations
+- `Project_Pt_2_Screenshot_8_EventBridge_Before.png` and `Project_Pt_2_Screenshot_9_EventBridge_After.png`: EventBridge rule BEFORE and AFTER fix
+- `Project_Pt_2_Screenshot_10_DLQ_Inspection.png`: SQS console with DLQ message body expanded
+- `Project_Pt_2_Screenshot_11_StepFunctions_Advanced.png`: Step Functions execution showing multiple states
+- `Project_Pt_2_Screenshot_12_Log_Entry.png` and `Project_Pt_2_Screenshot_13_XRay_Trace.png`: Log-to-trace correlation
+- **Analysis Files:**
+  - `solution_analyses/Project_Pt_2_Analysis_6_EventBridge_Fix.md`
+  - `solution_analyses/Project_Pt_2_Analysis_7_DLQ_Failure_Mode.md`
+  - `solution_analyses/Project_Pt_2_Analysis_8_StepFunctions_Flow.md`
+  - `solution_analyses/Project_Pt_2_Analysis_9_Log_Trace_Correlation.md`
 
 ---
 
@@ -301,10 +317,17 @@ Integrate ElastiCache with the product service:
 
 #### MVP Deliverables
 
-- [ ] X-Ray trace analysis identifying slowest operations → `Project_Pt_3_screenshot_1.png`
-- [ ] Lambda memory analysis with optimization recommendations and before/after metrics → `Project_Pt_3_screenshot_2.png`
-- [ ] Screenshot or logs showing ElastiCache integration working → `Project_Pt_3_screenshot_3.png`
-- [ ] Evidence of cache hit/miss (logs or metrics)
+- `Project_Pt_3_Screenshot_1_Performance_Profile.png`: X-Ray trace timeline with all segments visible and durations labeled
+- `Project_Pt_3_Screenshot_2_Lambda_Metrics.png`: CloudWatch metrics showing Duration (average and p99) and MemoryUsed vs MemorySize
+- `Project_Pt_3_Screenshot_3_Lambda_Before.png`: Lambda Duration metrics at original memory configuration
+- `Project_Pt_3_Screenshot_4_Lambda_After.png`: Lambda Duration metrics at optimized memory configuration
+- `Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`: CloudWatch Logs showing `CACHE_HIT`, `CACHE_MISS`, `CACHE_SET` with keys and TTL values
+- `Project_Pt_3_Screenshot_6_Cache_Verification.png`: Cache hit count > 0 demonstrating cache usage
+- **Code:** `src/services/cacheService.ts` showing Redis client initialization with `shopfast-redis-dev` endpoint
+- **Analysis Files:**
+  - `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
+  - `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
+  - `solution_analyses/Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
 
 ---
 
@@ -333,10 +356,12 @@ Add SNS filter policies to:
 
 #### Stretch Goal Deliverables
 
-- [ ] Database query performance analysis with throttling identification → `Project_Pt_3_screenshot_4.png`
-- [ ] CloudFront cache behavior configuration with appropriate TTLs for static content → `Project_Pt_3_screenshot_5.png`
-- [ ] Cache hit rate metrics showing improvement → `Project_Pt_3_screenshot_6.png`
-- [ ] SNS subscription filter policy configuration → `Project_Pt_3_screenshot_7.png`
+- `Project_Pt_3_Screenshot_8_DynamoDB_Metrics.png`: CloudWatch metrics showing ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits
+- `Project_Pt_3_Screenshot_9_SNS_Filter_Policy.png`: SNS console showing filter policy JSON
+- `Project_Pt_3_Screenshot_10_CloudFront_Behaviors.png`: CloudFront cache behaviors with path patterns and TTL settings
+- `Project_Pt_3_Screenshot_11_CloudFront_TTLs.png`: CloudFront TTL configuration for different content types
+- `Project_Pt_3_Screenshot_12_Cache_Hit_Rate.png`: CloudFront statistics showing cache hit rate percentage
+- **Analysis File:** `solution_analyses/Project_Pt_3_Analysis_4_DynamoDB_Patterns.md`
 
 ---
 
@@ -379,9 +404,13 @@ Configure SNS for alerting:
 
 #### MVP Deliverables
 
-- [ ] Health endpoint responses (AWS Lambda invoke output or screenshot) → `Project_Pt_4_screenshot_1.png`
-- [ ] Screenshot showing at least 3 CloudWatch alarms configured → `Project_Pt_4_screenshot_2.png`
-- [ ] SNS notification test confirmation (email received) → `Project_Pt_4_screenshot_3.png`
+- `Project_Pt_4_Screenshot_1_Health_Endpoint.png`: Lambda invoke output showing JSON: `{"status": "healthy", "dependencies": {"dynamodb": "connected", "redis": "connected"}}`
+- `Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`: All three alarms: `ShopFast-dev-ProductService-Errors`, `ShopFast-dev-ProductService-Duration`, `ShopFast-dev-DynamoDB-Throttling`
+- `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`: Alarm configuration details showing thresholds with evaluation periods
+- `Project_Pt_4_Screenshot_4_SNS_Subscription.png`: SNS topic showing email subscription with "Confirmed" status
+- `Project_Pt_4_Screenshot_5_Notification_Email.png`: Actual email received showing alarm name, state change, and timestamp
+- **Code:** `src/handlers/healthHandler.ts` showing connectivity checks
+- **Analysis File:** `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
 
 ---
 
@@ -411,9 +440,13 @@ Analyze and document:
 
 #### Stretch Goal Deliverables
 
-- [ ] Composite alarm or tiered alerting configuration → `Project_Pt_4_screenshot_4.png`
-- [ ] EventBridge rule for operational events → `Project_Pt_4_screenshot_5.png`
-- [ ] SLI/SLO monitoring dashboard with defined targets → `Project_Pt_4_screenshot_6.png`
+- `Project_Pt_4_Screenshot_6_EventBridge_Rule.png`: EventBridge rule on `shopfast-events-dev` bus with event pattern and target
+- `Project_Pt_4_Screenshot_7_SLI_SLO_Dashboard.png`: Dashboard with availability, latency p99, and error rate with target lines
+- `Project_Pt_4_Screenshot_8_Composite_Alarms.png`: Composite alarm or tiered alerting configuration
+- `Project_Pt_4_Screenshot_9_Resource_Utilization.png`: Lambda concurrent executions, DynamoDB consumed vs provisioned capacity
+- **Analysis Files:**
+  - `solution_analyses/Project_Pt_4_Analysis_2_Composite_Alarm_Design.md`
+  - `solution_analyses/Project_Pt_4_Analysis_3_Capacity_Planning.md`
 
 ---
 
@@ -512,9 +545,10 @@ Before submitting your project, verify you have completed the required items.
 ### Required Artifacts
 
 For all completed work (MVP and any stretch goals):
-- [ ] Screenshots for all deliverables listed
+- [ ] Screenshots with exact naming format: `Project_Pt_X_Screenshot_Y_Description.png`
+- [ ] Analysis markdown files in `solution_analyses/` directory as specified in each part
+- [ ] Code files showing implementations: `productHandler.ts`, `cacheService.ts`, `healthHandler.ts`
 - [ ] Documentation of issues found and fixes applied
-- [ ] Code snippets or configuration for key implementations
 - [ ] Evidence of working solutions (logs, metrics, traces)
 
 ---
