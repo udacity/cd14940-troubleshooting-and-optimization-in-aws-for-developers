@@ -128,11 +128,31 @@ Transform the under-instrumented application into a fully observable system.
 
 **Problem:** The product service uses basic `print()` statements making logs hard to search and correlate. Check CloudWatch Logs at `/aws/lambda/shopfast-product-service-dev` to see the current unstructured output (e.g., `Received event: {...}`, `Fetching all products...`).
 
-**Task:** Update `starter_code/lambdas/product-service/handler.py` to implement structured JSON logging with:
+**Task:** Update the `shopfast-product-service-dev` Lambda function to implement structured JSON logging with:
 - Timestamp in ISO 8601 format
 - Log level (INFO, WARN, ERROR)
 - Service name (`product-service`)
 - Contextual data (request ID, product ID as appropriate)
+
+**How to Deploy Your Changes:**
+
+You can deploy your code changes using either method:
+
+*Option A - Edit directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. In the Code tab, edit `handler.py` directly in the code editor
+3. Click **Deploy** to save and deploy your changes
+
+*Option B - Edit in Cloud9 and deploy via CLI:*
+1. Edit the file `starter_code/lambdas/product-service/handler.py` in Cloud9
+2. Zip and deploy with AWS CLI:
+   ```bash
+   cd starter_code/lambdas/product-service
+   zip -r function.zip .
+   aws lambda update-function-code \
+     --function-name shopfast-product-service-dev \
+     --zip-file fileb://function.zip
+   ```
 
 **Verification:**
 
@@ -170,13 +190,29 @@ aws logs filter-log-events \
 
 **Problem:** There's no visibility into request flows or downstream service latency. The product service makes calls to DynamoDB, but there's no way to see how long these calls take or where bottlenecks occur.
 
-**Task:** Configure X-Ray tracing for the product service:
-- Modify `starter_code/lambdas/product-service/template.yaml` to set `Tracing: Active` (currently `Tracing: PassThrough`)
-- Redeploy the Lambda function with the updated configuration
+**Task:** Enable X-Ray active tracing on the `shopfast-product-service-dev` Lambda function.
+
+**How to Deploy Your Changes:**
+
+You can enable X-Ray tracing using either method:
+
+*Option A - Enable directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. Go to the **Configuration** tab > **Monitoring and operations tools**
+3. Click **Edit**
+4. Under **AWS X-Ray**, select **Active tracing**
+5. Click **Save**
+
+*Option B - Enable via AWS CLI in Cloud9:*
+```bash
+aws lambda update-function-configuration \
+  --function-name shopfast-product-service-dev \
+  --tracing-config Mode=Active
+```
 
 **Verification:**
 
-After redeploying, run the following command in Cloud9 to invoke the Lambda:
+After enabling X-Ray, run the following command in Cloud9 to invoke the Lambda:
 
 ```bash
 aws lambda invoke --function-name shopfast-product-service-dev \
@@ -197,15 +233,35 @@ Look for: Service map showing `shopfast-product-service-dev` with connections to
 
 **Problem:** There are no application-level metrics to track business KPIs like product views or error rates. CloudWatch only shows Lambda system metrics (invocations, duration, errors) but not what the application is actually doing.
 
-**Task:** Use CloudWatch Embedded Metric Format (EMF) in `starter_code/lambdas/product-service/handler.py` to publish at least 2 business metrics:
+**Task:** Update the `shopfast-product-service-dev` Lambda function to publish custom metrics using CloudWatch Embedded Metric Format (EMF):
 - `ProductViews` - Count of product page views
 - `Errors` - Count of application errors
 
 Metrics should be published to the `ShopFast/Application` namespace with a `Service` dimension set to `product-service`.
 
+**How to Deploy Your Changes:**
+
+You can deploy your code changes using either method:
+
+*Option A - Edit directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. In the Code tab, edit `handler.py` directly in the code editor
+3. Click **Deploy** to save and deploy your changes
+
+*Option B - Edit in Cloud9 and deploy via CLI:*
+1. Edit the file `starter_code/lambdas/product-service/handler.py` in Cloud9
+2. Zip and deploy with AWS CLI:
+   ```bash
+   cd starter_code/lambdas/product-service
+   zip -r function.zip .
+   aws lambda update-function-code \
+     --function-name shopfast-product-service-dev \
+     --zip-file fileb://function.zip
+   ```
+
 **Verification:**
 
-After implementing EMF, run the following command in Cloud9 to invoke the Lambda several times:
+After deploying your changes, run the following command in Cloud9 to invoke the Lambda several times:
 
 ```bash
 for i in {1..5}; do
@@ -540,6 +596,25 @@ Profile, analyze, and optimize the application for better performance.
 - Determine optimal memory settings based on actual usage
 - Document before/after metrics showing improvement or cost savings
 
+**How to Deploy Your Changes:**
+
+You can update Lambda configuration using either method:
+
+*Option A - Update directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. Go to the **Configuration** tab > **General configuration**
+3. Click **Edit**
+4. Update **Memory** (e.g., 256MB or 512MB) and **Timeout** (e.g., 10 seconds)
+5. Click **Save**
+
+*Option B - Update via AWS CLI in Cloud9:*
+```bash
+aws lambda update-function-configuration \
+  --function-name shopfast-product-service-dev \
+  --memory-size 256 \
+  --timeout 10
+```
+
 **Verification:**
 
 Run the following command in Cloud9 to view the current configuration:
@@ -572,6 +647,28 @@ After optimization, compare Duration metrics at different memory configurations 
 **Files to create/modify:**
 - Create a new `cache_service.py` module with Redis client and caching functions
 - Modify `starter_code/lambdas/product-service/handler.py` to integrate caching into get_product()
+
+**How to Deploy Your Changes:**
+
+You can deploy your code changes using either method:
+
+*Option A - Edit directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. In the Code tab, create a new file `cache_service.py` and add your Redis caching code
+3. Edit `handler.py` to import and use the cache service
+4. Click **Deploy** to save and deploy your changes
+
+*Option B - Edit in Cloud9 and deploy via CLI:*
+1. Create `starter_code/lambdas/product-service/cache_service.py` with your Redis client code
+2. Edit `starter_code/lambdas/product-service/handler.py` to integrate caching
+3. Zip and deploy with AWS CLI:
+   ```bash
+   cd starter_code/lambdas/product-service
+   zip -r function.zip .
+   aws lambda update-function-code \
+     --function-name shopfast-product-service-dev \
+     --zip-file fileb://function.zip
+   ```
 
 **Verification:**
 
@@ -685,6 +782,28 @@ Implement production-grade monitoring to maintain platform health.
 
 **File to create:**
 - `health_handler.py` - Health check endpoint handler
+
+**How to Deploy Your Changes:**
+
+You can deploy your code changes using either method:
+
+*Option A - Edit directly in Lambda Console:*
+1. Navigate to AWS Console > Lambda > Functions > `shopfast-product-service-dev`
+2. In the Code tab, create a new file `health_handler.py` and add your health check code
+3. Edit `handler.py` to route `/health` requests to your health handler
+4. Click **Deploy** to save and deploy your changes
+
+*Option B - Edit in Cloud9 and deploy via CLI:*
+1. Create `starter_code/lambdas/product-service/health_handler.py` with your health check code
+2. Edit `starter_code/lambdas/product-service/handler.py` to route `/health` requests
+3. Zip and deploy with AWS CLI:
+   ```bash
+   cd starter_code/lambdas/product-service
+   zip -r function.zip .
+   aws lambda update-function-code \
+     --function-name shopfast-product-service-dev \
+     --zip-file fileb://function.zip
+   ```
 
 **Expected Response Format:**
 ```json
