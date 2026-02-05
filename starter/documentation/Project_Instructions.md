@@ -93,32 +93,114 @@ Transform the under-instrumented application into a fully observable system.
 
 **1. Implement Structured Logging**
 
-Update the logging in Lambda functions to output structured JSON format. Your logs should include:
+**Problem:** The product service uses basic `print()` statements making logs hard to search and correlate. Check CloudWatch Logs at `/aws/lambda/shopfast-product-service-dev` to see the current unstructured output (e.g., `Received event: {...}`, `Fetching all products...`).
+
+**Task:** Update `starter_code/lambdas/product-service/handler.py` to implement structured JSON logging with:
 - Timestamp in ISO 8601 format
 - Log level (INFO, WARN, ERROR)
-- Service name and function identifier
+- Service name (`product-service`)
 - Contextual data (request ID, product ID as appropriate)
+
+**Verification:**
+```bash
+# Invoke the Lambda to generate logs
+aws lambda invoke --function-name shopfast-product-service-dev \
+  --payload '{"httpMethod": "GET", "path": "/products"}' \
+  --cli-binary-format raw-in-base64-out output.json
+
+# Check recent logs for JSON format
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/shopfast-product-service-dev \
+  --limit 5
+```
+
+**What WRONG looks like:**
+- Plain text: `Received event: {"httpMethod": "GET"...}` (unstructured)
+- NameError in logs: `NameError: name 'datetime' is not defined` (missing import)
+
+**What CORRECT looks like:**
+```json
+{"timestamp": "2024-01-15T12:00:00.000Z", "level": "INFO", "service": "product-service", "message": "Request received", "path": "/products"}
+```
+
+**Screenshot:** `Project_Pt_1_Screenshot_1_Structured_JSON_Logging.png`
+
+---
 
 **2. Enable X-Ray Tracing on Lambda**
 
-Configure X-Ray tracing for core services:
-- Enable active tracing on Lambda functions
-- Verify traces appear in the X-Ray console
+**Problem:** There's no visibility into request flows or downstream service latency. The product service makes calls to DynamoDB, but there's no way to see how long these calls take or where bottlenecks occur.
+
+**Task:** Configure X-Ray tracing for the product service:
+- Modify `starter_code/lambdas/product-service/template.yaml` to set `Tracing: Active` (currently `Tracing: PassThrough`)
+- Redeploy the Lambda function with the updated configuration
+
+**Verification:**
+```bash
+# After redeploying, invoke the Lambda
+aws lambda invoke --function-name shopfast-product-service-dev \
+  --payload '{"httpMethod": "GET", "path": "/products"}' \
+  --cli-binary-format raw-in-base64-out output.json
+
+# Check X-Ray console for traces
+# AWS Console > X-Ray > Traces > Filter by service: shopfast-product-service-dev
+```
+
+Look for: Service map showing `shopfast-product-service-dev` with connections to downstream services (DynamoDB).
+
+**Screenshot:** `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`
+
+---
 
 **3. Implement Basic Custom Metrics**
 
-Use CloudWatch Embedded Metric Format (EMF) to publish at least 2 business metrics:
-- Product views
-- API errors (or similar business metric)
+**Problem:** There are no application-level metrics to track business KPIs like product views or error rates. CloudWatch only shows Lambda system metrics (invocations, duration, errors) but not what the application is actually doing.
 
-Define at least one dimension (e.g., service name).
+**Task:** Use CloudWatch Embedded Metric Format (EMF) in `starter_code/lambdas/product-service/handler.py` to publish at least 2 business metrics:
+- `ProductViews` - Count of product page views
+- `Errors` - Count of application errors
+
+Metrics should be published to the `ShopFast/Application` namespace with a `Service` dimension set to `product-service`.
+
+**Verification:**
+```bash
+# After implementing EMF, invoke the Lambda several times
+for i in {1..5}; do
+  aws lambda invoke --function-name shopfast-product-service-dev \
+    --payload '{"httpMethod": "GET", "path": "/products"}' \
+    --cli-binary-format raw-in-base64-out output.json
+done
+
+# Wait 1-2 minutes for metrics to appear
+# AWS Console > CloudWatch > Metrics > Custom Namespaces > ShopFast/Application
+```
+
+Look for: Custom metrics `ProductViews` and `Errors` with the `Service=product-service` dimension.
+
+**Screenshot:** `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`
+
+---
 
 **4. Build Basic Operational Dashboard**
 
-Create a CloudWatch dashboard that provides visibility into:
-- Request rates and error rates for Lambda functions
-- Latency metrics (at minimum P50)
-- At least one custom business metric
+**Problem:** There's no centralized view of application health. To understand what's happening, you'd have to check Lambda metrics, CloudWatch Logs, and custom metrics separately.
+
+**Task:** Create a CloudWatch dashboard named "ShopFast MVP Dashboard" with at least 3 widgets:
+1. Lambda Invocations/Errors for `shopfast-product-service-dev`
+2. Lambda Duration (P50 latency minimum)
+3. At least one custom EMF metric from `ShopFast/Application` namespace
+
+**Verification:**
+```bash
+# Verify dashboard exists
+aws cloudwatch list-dashboards | grep ShopFast
+
+# Or view in AWS Console > CloudWatch > Dashboards > ShopFast MVP Dashboard
+```
+
+**Screenshot:** `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
+
+---
 
 #### MVP Deliverables
 
@@ -126,7 +208,7 @@ Create a CloudWatch dashboard that provides visibility into:
 - `Project_Pt_1_Screenshot_2_XRay_Service_Map.png`: X-Ray service map showing `shopfast-product-service-dev` with downstream services (DynamoDB, SNS) and subsegments for SDK calls visible
 - `Project_Pt_1_Screenshot_3_Custom_EMF_Metrics.png`: CloudWatch Metrics console with namespace `ShopFast/Application` selected, showing at least 2 custom metrics
 - `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`: CloudWatch Dashboard named "ShopFast MVP Dashboard" with 3+ widgets visible
-- **Code:** `src/handlers/productHandler.ts` showing Logger import, X-Ray `captureAWSv3Client`, and EMF `putMetric()` calls
+- **Code:** Your modified `starter_code/lambdas/product-service/handler.py` showing structured logging function and EMF metric emission
 
 ---
 
@@ -196,34 +278,113 @@ Use CloudWatch Logs Insights, X-Ray traces, and metrics to identify and fix prod
 
 **1. Analyze Logs with CloudWatch Insights**
 
-Write Logs Insights queries to:
+**Problem:** There are errors occurring across the platform, but you need to quantify them and identify patterns. Random log browsing is inefficient.
+
+**Task:** Write Logs Insights queries to analyze the log group `/aws/lambda/shopfast-product-service-dev`:
 - Find error patterns across services
 - Identify the most frequent error types
 - Track error frequency over time
 
+**Sample Query Patterns:**
+```
+# Find all errors
+fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc
+| limit 50
+
+# Count errors by type
+fields @timestamp, @message
+| filter @message like /ERROR/
+| stats count(*) as error_count by bin(5m)
+
+# Parse structured logs and aggregate
+fields @timestamp, level, message
+| filter level = "ERROR"
+| stats count(*) by message
+```
+
+**Verification:** Run the query and observe aggregated/filtered results (not just raw log output).
+
+**Screenshot:** `Project_Pt_2_Screenshot_1_Logs_Insights_Query.png`
+
+---
+
 **2. Debug Lambda Issues**
 
-Use CloudWatch Logs and X-Ray to:
+**Problem:** The product service Lambda (`shopfast-product-service-dev`) is experiencing timeouts and errors. The current timeout is set to 3 seconds and memory to 128MB.
+
+**Task:** Use CloudWatch Logs and X-Ray to:
 - Identify Lambda functions with high error rates or timeouts
-- Analyze at least one timeout issue and its root cause
-- Find slow downstream dependencies (DynamoDB throttling, cold starts)
+- Look for `Task timed out after 3.00 seconds` errors
+- Find slow downstream dependencies (DynamoDB operations taking too long)
+
+**Where to look:**
+- CloudWatch Logs: `/aws/lambda/shopfast-product-service-dev`
+- X-Ray: Traces for `shopfast-product-service-dev`
+- CloudWatch Metrics: Lambda > By Function Name > Duration, Errors
+
+**Hints:**
+- The full table scan in `get_all_products()` can take 4-5 seconds on large tables
+- The 3-second timeout causes requests to fail before completion
+- Look for patterns: timeouts happen on `/products` endpoint, not `/products/{id}`
+
+**Screenshot:** `Project_Pt_2_Screenshot_2_Lambda_Error_Debug.png`
+**Screenshot:** `Project_Pt_2_Screenshot_3_XRay_Trace_Analysis.png`
+**Analysis:** `solution_analyses/Project_Pt_2_Analysis_1_Lambda_Error_Root_Cause.md`
+**Analysis:** `solution_analyses/Project_Pt_2_Analysis_2_XRay_Bottleneck_Identification.md`
+
+---
 
 **3. Troubleshoot Step Functions Workflow**
 
-Review the Step Functions execution history to:
+**Problem:** The product catalog refresh workflow (`shopfast-product-workflow-dev`) is hanging indefinitely. Workflows start but never complete.
+
+**Task:** Review the Step Functions execution history to:
 - Identify a stuck or failed execution
 - Diagnose the root cause (misconfiguration, timeout, etc.)
 - Document the issue and resolution
 
+**Where to look:**
+- AWS Console > Step Functions > State machines > `shopfast-product-workflow-dev`
+- Check Execution history for Running or Failed executions
+- Click on a stuck execution to see which state it's waiting on
+
+**Hints:**
+- Look at the Wait state configuration
+- Check if there's a timestamp that's set far in the future (e.g., year 2099)
+- The execution graph shows exactly which state is currently active
+
+**Screenshot:** `Project_Pt_2_Screenshot_4_StepFunctions_Debug.png`
+**Analysis:** `solution_analyses/Project_Pt_2_Analysis_3_StepFunctions_Failure.md`
+
+---
+
 **4. Document and Verify Fixes**
 
-For each issue found:
-- Document the symptoms
-- Explain the root cause
-- Describe the fix applied
-- Provide evidence that the fix resolved the issue
+**Problem:** You need to prove that fixes actually worked and create a knowledge base for future issues.
+
+**Task:** For each issue found, document:
+1. **Symptoms** - What was observed (error messages, behavior)
+2. **Investigation** - How you found the root cause
+3. **Root Cause** - Why it was happening
+4. **Fix** - What you changed (include file paths and code changes)
+5. **Verification** - Evidence the fix worked (before/after metrics)
 
 Document and fix at least **3 distinct issues** across the platform.
+
+**Expected Issues to Find:**
+1. Lambda timeout issue (3s timeout vs 4-5s scan operation)
+2. Step Functions stuck execution (Wait state misconfiguration)
+3. One additional issue from: DynamoDB throttling, EventBridge pattern mismatch, or SQS DLQ messages
+
+**Screenshot:** `Project_Pt_2_Screenshot_5_Issue_Documentation.png`
+**Screenshot:** `Project_Pt_2_Screenshot_6_Before_Fix.png`
+**Screenshot:** `Project_Pt_2_Screenshot_7_After_Fix.png`
+**Analysis:** `solution_analyses/Project_Pt_2_Analysis_4_Issue_Documentation.md` (3+ issues documented)
+**Analysis:** `solution_analyses/Project_Pt_2_Analysis_5_Fix_Verification.md`
+
+---
 
 #### MVP Deliverables
 
@@ -295,25 +456,92 @@ Profile, analyze, and optimize the application for better performance.
 
 **1. Profile Application Performance**
 
-Use X-Ray and CloudWatch to:
-- Identify the slowest operations in request traces
+**Problem:** You need to identify where time is being spent in request processing to make informed optimization decisions.
+
+**Task:** Use X-Ray and CloudWatch to:
+- Identify the slowest operations in request traces for `shopfast-product-service-dev`
 - Analyze Lambda duration and memory metrics
 - Find at least 2 operations that could benefit from optimization
 
+**Where to look:**
+- X-Ray: Traces for `shopfast-product-service-dev` > Click on a trace > View timeline
+- CloudWatch: Lambda > By Function Name > `shopfast-product-service-dev` > Duration, Memory
+
+**What to look for:**
+- DynamoDB Scan operations (typically 100-500ms)
+- Cold start initialization time
+- Total request duration vs timeout setting
+
+**Screenshot:** `Project_Pt_3_Screenshot_1_Performance_Profile.png`
+**Screenshot:** `Project_Pt_3_Screenshot_2_Lambda_Metrics.png`
+**Analysis:** `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
+
+---
+
 **2. Right-Size Lambda Resources**
 
-Optimize Lambda resource allocation:
-- Analyze Lambda memory usage and cold start times
+**Problem:** The Lambda function is configured with 128MB memory and 3s timeout, which may not be optimal for the workload.
+
+**Task:** Optimize Lambda resource allocation:
+- Analyze Lambda memory usage and cold start times from CloudWatch metrics
 - Determine optimal memory settings based on actual usage
 - Document before/after metrics showing improvement or cost savings
 
+**Verification:**
+```bash
+# View current configuration
+aws lambda get-function-configuration \
+  --function-name shopfast-product-service-dev \
+  --query '{Memory: MemorySize, Timeout: Timeout}'
+
+# After optimization, compare Duration metrics at different memory configurations
+```
+
+**Screenshot:** `Project_Pt_3_Screenshot_3_Lambda_Before.png`
+**Screenshot:** `Project_Pt_3_Screenshot_4_Lambda_After.png`
+**Analysis:** `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
+
+---
+
 **3. Implement Application Caching**
 
-Integrate ElastiCache with the product service:
-- Connect to the pre-deployed Redis cluster
+**Problem:** The ElastiCache Redis cluster (`shopfast-redis-dev`) is deployed but not integrated. Every product request hits DynamoDB directly, adding unnecessary latency and cost.
+
+**Task:** Integrate ElastiCache with the product service:
+- Create a cache service module to connect to Redis
 - Implement cache-aside pattern for product data
-- Set appropriate TTLs
-- Verify caching is working (logs or metrics)
+- Set appropriate TTLs (recommended: 300 seconds / 5 minutes)
+- Add logging for cache operations (CACHE_HIT, CACHE_MISS, CACHE_SET)
+
+**Files to create/modify:**
+- Create a new `cache_service.py` module with Redis client and caching functions
+- Modify `starter_code/lambdas/product-service/handler.py` to integrate caching into get_product()
+
+**Verification:**
+```bash
+# After implementing caching, invoke the Lambda twice for the same product
+aws lambda invoke --function-name shopfast-product-service-dev \
+  --payload '{"httpMethod": "GET", "path": "/products/1", "pathParameters": {"id": "1"}}' \
+  --cli-binary-format raw-in-base64-out output.json
+
+# Second request should show CACHE_HIT in logs
+aws lambda invoke --function-name shopfast-product-service-dev \
+  --payload '{"httpMethod": "GET", "path": "/products/1", "pathParameters": {"id": "1"}}' \
+  --cli-binary-format raw-in-base64-out output.json
+
+# Check logs for cache operations
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/shopfast-product-service-dev \
+  --filter-pattern "CACHE" \
+  --limit 10
+```
+
+**Screenshot:** `Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`
+**Screenshot:** `Project_Pt_3_Screenshot_6_Cache_Verification.png`
+**Code:** Your `cache_service.py` module
+**Analysis:** `solution_analyses/Project_Pt_3_Analysis_3_Cache_TTL_Justification.md`
+
+---
 
 #### MVP Deliverables
 
@@ -323,7 +551,7 @@ Integrate ElastiCache with the product service:
 - `Project_Pt_3_Screenshot_4_Lambda_After.png`: Lambda Duration metrics at optimized memory configuration
 - `Project_Pt_3_Screenshot_5_Redis_Cache_Logs.png`: CloudWatch Logs showing `CACHE_HIT`, `CACHE_MISS`, `CACHE_SET` with keys and TTL values
 - `Project_Pt_3_Screenshot_6_Cache_Verification.png`: Cache hit count > 0 demonstrating cache usage
-- **Code:** `src/services/cacheService.ts` showing Redis client initialization with `shopfast-redis-dev` endpoint
+- **Code:** Your `cache_service.py` showing Redis client initialization with `shopfast-redis-dev` endpoint
 - **Analysis Files:**
   - `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
   - `solution_analyses/Project_Pt_3_Analysis_2_Cost_Performance_Tradeoff.md`
@@ -383,24 +611,93 @@ Implement production-grade monitoring to maintain platform health.
 
 **1. Implement Basic Health Endpoints**
 
-Add health check endpoints that:
-- Return meaningful health status (not just 200 OK)
-- Check at least one dependency (DynamoDB or cache)
+**Problem:** There's no way to programmatically check if the service and its dependencies are healthy. Load balancers and monitoring systems need a health endpoint.
+
+**Task:** Add a health check handler that:
+- Returns meaningful health status (not just 200 OK)
+- Checks at least one dependency (DynamoDB table `shopfast-products-dev`)
+- Optionally checks Redis connectivity (`shopfast-redis-dev`)
+
+**File to create:**
+- `health_handler.py` - Health check endpoint handler
+
+**Expected Response Format:**
+```json
+{
+  "status": "healthy",
+  "dependencies": {
+    "dynamodb": "connected",
+    "redis": "connected"
+  },
+  "timestamp": "2024-01-15T12:00:00.000Z"
+}
+```
+
+**Verification:**
+```bash
+aws lambda invoke --function-name shopfast-product-service-dev \
+  --payload '{"httpMethod": "GET", "path": "/health"}' \
+  --cli-binary-format raw-in-base64-out output.json
+cat output.json
+```
+
+**Screenshot:** `Project_Pt_4_Screenshot_1_Health_Endpoint.png`
+**Code:** Your `health_handler.py` module
+
+---
 
 **2. Create Essential CloudWatch Alarms**
 
-Create alarms for critical metrics (at least 3):
-- Lambda error rate threshold
-- Lambda duration/timeout threshold
-- One additional alarm of your choice (DynamoDB throttling, etc.)
+**Problem:** There's no automated alerting when things go wrong. Issues are only discovered when users complain.
+
+**Task:** Create alarms for critical metrics (at least 3):
+1. `ShopFast-dev-ProductService-Errors`: Lambda error rate threshold
+2. `ShopFast-dev-ProductService-Duration`: Lambda duration/timeout threshold
+3. `ShopFast-dev-DynamoDB-Throttling`: DynamoDB throttling events
+
+**Verification:**
+```bash
+# List alarms
+aws cloudwatch describe-alarms \
+  --alarm-name-prefix "ShopFast-dev" \
+  --query 'MetricAlarms[].{Name:AlarmName,State:StateValue,Threshold:Threshold}'
+```
+
+**Screenshot:** `Project_Pt_4_Screenshot_2_CloudWatch_Alarms.png`
+**Screenshot:** `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`
+**Analysis:** `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
+
+---
 
 **3. Set Up Basic Notifications**
 
-Configure SNS for alerting:
-- Create a notification topic
+**Problem:** Even with alarms, there's no way to receive notifications when they trigger.
+
+**Task:** Configure SNS for alerting:
+- Use or create the SNS topic `shopfast-notifications-dev`
 - Subscribe an email endpoint
 - Connect alarms to the notification topic
 - Test alert delivery
+
+**Verification:**
+```bash
+# List SNS subscriptions
+aws sns list-subscriptions-by-topic \
+  --topic-arn arn:aws:sns:us-east-1:ACCOUNT_ID:shopfast-notifications-dev
+
+# Set alarm state to ALARM to test notification
+aws cloudwatch set-alarm-state \
+  --alarm-name "ShopFast-dev-ProductService-Errors" \
+  --state-value ALARM \
+  --state-reason "Testing notification delivery"
+```
+
+Check your email for the alarm notification.
+
+**Screenshot:** `Project_Pt_4_Screenshot_4_SNS_Subscription.png`
+**Screenshot:** `Project_Pt_4_Screenshot_5_Notification_Email.png`
+
+---
 
 #### MVP Deliverables
 
@@ -409,7 +706,7 @@ Configure SNS for alerting:
 - `Project_Pt_4_Screenshot_3_Alarm_Thresholds.png`: Alarm configuration details showing thresholds with evaluation periods
 - `Project_Pt_4_Screenshot_4_SNS_Subscription.png`: SNS topic showing email subscription with "Confirmed" status
 - `Project_Pt_4_Screenshot_5_Notification_Email.png`: Actual email received showing alarm name, state change, and timestamp
-- **Code:** `src/handlers/healthHandler.ts` showing connectivity checks
+- **Code:** Your `health_handler.py` showing connectivity checks
 - **Analysis File:** `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
 
 ---
@@ -501,7 +798,7 @@ Before submitting your project, verify you have completed the required items.
 - `Project_Pt_1_Screenshot_4_Operational_Dashboard.png`
 
 **Code:**
-- `src/handlers/productHandler.ts` showing Logger, X-Ray, and EMF implementations
+- Your modified `handler.py` showing Logger, X-Ray, and EMF implementations
 
 ### Part 2: Debugging (Required)
 
@@ -532,7 +829,7 @@ Before submitting your project, verify you have completed the required items.
 - `Project_Pt_3_Screenshot_6_Cache_Verification.png`
 
 **Code:**
-- `src/services/cacheService.ts` showing Redis integration
+- Your `cache_service.py` showing Redis integration
 
 **Analysis Files:**
 - `solution_analyses/Project_Pt_3_Analysis_1_Performance_Recommendations.md`
@@ -549,7 +846,7 @@ Before submitting your project, verify you have completed the required items.
 - `Project_Pt_4_Screenshot_5_Notification_Email.png`
 
 **Code:**
-- `src/handlers/healthHandler.ts` showing health check implementation
+- Your `health_handler.py` showing health check implementation
 
 **Analysis Files:**
 - `solution_analyses/Project_Pt_4_Analysis_1_Alarm_Threshold_Justification.md`
