@@ -1,2 +1,5 @@
-# No external dependencies required
+# AWS X-Ray SDK for distributed tracing
+# Required to see DynamoDB connections in X-Ray service map
+aws-xray-sdk>=2.12.0
+
 # boto3 is included in AWS Lambda Python runtime
