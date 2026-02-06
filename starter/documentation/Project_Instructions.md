@@ -210,53 +210,7 @@ aws lambda update-function-configuration \
   --tracing-config Mode=Active
 ```
 
-**Step 3: Instrument boto3 with X-Ray SDK**
-
-Enabling `Tracing: Active` captures Lambda invocations, but to see downstream service calls (DynamoDB, SNS, etc.) in the X-Ray service map, you must instrument boto3 with the X-Ray SDK.
-
-**Edit `handler.py` - Add at the VERY TOP of the file (before other imports):**
-
-```python
-from aws_xray_sdk.core import patch_all
-
-# Patch boto3 to enable X-Ray tracing for AWS service calls
-patch_all()
-```
-
-**Update `requirements.txt` - Add the X-Ray SDK dependency:**
-
-```
-aws-xray-sdk>=2.12.0
-```
-
-**Redeploy the Lambda function:**
-
-*Option A - Via Lambda Console:*
-1. Edit `handler.py` to add the X-Ray SDK import at the top
-2. Click **Deploy**
-
-*Option B - Via CLI in Cloud9:*
-```bash
-cd starter_code/lambdas/product-service
-
-# Add aws-xray-sdk to requirements.txt
-echo "aws-xray-sdk>=2.12.0" >> requirements.txt
-
-# Install dependencies into the deployment package
-pip install -r requirements.txt -t .
-
-# Create deployment package and deploy
-zip -r function.zip .
-aws lambda update-function-code \
-  --function-name shopfast-product-service-dev \
-  --zip-file fileb://function.zip \
-  --no-cli-pager
-```
-
-**Why is this needed?**
-- `Tracing: Active` enables X-Ray to capture Lambda invocation segments
-- `patch_all()` instruments boto3 so DynamoDB, SNS, and SQS calls create subsegments
-- Without `patch_all()`, only the Lambda function appears in the service map (no downstream connections)
+**Important:** Enabling `Tracing: Active` on Lambda only captures the Lambda invocation itself. To see downstream service calls (like DynamoDB) in the X-Ray service map, you must also instrument boto3 using the X-Ray SDK. Refer to your earlier lessons on X-Ray SDK integration for how to do this.
 
 **Verification:**
 
